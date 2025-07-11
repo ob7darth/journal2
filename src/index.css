@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  @apply bg-warm-50 text-gray-900;
+}
+
+.container {
+  @apply w-full;
+}
+
+@media (min-width: 640px) {
+  .container {
+    @apply max-w-screen-sm;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    @apply max-w-screen-md;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    @apply max-w-screen-lg;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    @apply max-w-screen-xl;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container {
+    @apply max-w-screen-2xl;
+  }
+}
+
+/* Custom component styles */
+.btn-primary {
+  @apply bg-primary-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors;
+}
+
+.btn-secondary {
+  @apply bg-white text-gray-700 px-6 py-3 rounded-lg font-medium border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors;
+}
+
+.textarea-field {
+  @apply w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-colors resize-none;
+}

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Journal Daily Devotions - Embed Code Generator</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8fafc;
+            color: #334155;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0284c7;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #0284c7;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .checkbox-group input {
+            width: auto;
+        }
+        .preview {
+            background: #f1f5f9;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 20px 0;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .copy-btn:hover {
+            background: #0369a1;
+        }
+        .btn {
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background: #0369a1;
+        }
+        .btn-secondary {
+            background: #6b7280;
+        }
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 640px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .info-box {
+            background: #dbeafe;
+            border: 1px solid #93c5fd;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+        .info-box h3 {
+            margin: 0 0 8px 0;
+            color: #1e40af;
+        }
+        .info-box p {
+            margin: 0;
+            color: #1e40af;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🕊️ Life Journal Daily Devotions</h1>
+        <p class="subtitle">Generate embed code to integrate the devotional app into your website</p>
+
+        <div class="options-grid">
+            <div class="form-group">
+                <label for="width">Width</label>
+                <input type="text" id="width" value="100%" placeholder="e.g., 100%, 800px, 50vw">
+            </div>
+            <div class="form-group">
+                <label for="height">Height</label>
+                <input type="text" id="height" value="800px" placeholder="e.g., 800px, 100vh, 600px">
+            </div>
+        </div>
+
+        <div class="options-grid">
+            <div class="form-group">
+                <label for="border">Border Style</label>
+                <select id="border">
+                    <option value="none">No Border</option>
+                    <option value="1px solid #e5e7eb">Light Border</option>
+                    <option value="2px solid #d1d5db">Medium Border</option>
+                    <option value="1px solid #0284c7">Blue Border</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="borderRadius">Border Radius</label>
+                <select id="borderRadius">
+                    <option value="0">No Radius</option>
+                    <option value="8px" selected>Small (8px)</option>
+                    <option value="12px">Medium (12px)</option>
+                    <option value="16px">Large (16px)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="responsive" checked>
+                <label for="responsive">Make responsive (recommended)</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="allowFullscreen" checked>
+                <label for="allowFullscreen">Allow fullscreen</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="customUrl">Custom URL (optional)</label>
+            <input type="text" id="customUrl" placeholder="Leave empty to use current deployment URL">
+        </div>
+
+        <div class="info-box">
+            <h3>📱 Mobile Optimization</h3>
+            <p>The Life Journal app is fully responsive and works great on mobile devices. The embed will automatically adapt to different screen sizes.</p>
+        </div>
+
+        <h3>Preview</h3>
+        <div class="preview" id="preview">
+            <p>Your embedded Life Journal app will appear here</p>
+        </div>
+
+        <h3>Embed Code</h3>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard('embedCode')">Copy</button>
+            <pre id="embedCode"></pre>
+        </div>
+
+        <h3>WordPress/Divi Instructions</h3>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard('wordpressCode')">Copy</button>
+            <pre id="wordpressCode"></pre>
+        </div>
+
+        <div class="info-box">
+            <h3>🔧 Integration Tips</h3>
+            <p><strong>For WordPress:</strong> Use the HTML block or Custom HTML widget to add the embed code.<br>
+            <strong>For Divi:</strong> Use the Code module and paste the embed code.<br>
+            <strong>For other platforms:</strong> Most website builders support HTML/iframe embedding.</p>
+        </div>
+
+        <button class="btn" onclick="generateCode()">Update Embed Code</button>
+        <button class="btn btn-secondary" onclick="resetDefaults()">Reset to Defaults</button>
+    </div>
+
+    <script>
+        // Get the current deployment URL (you'll need to update this with your actual URL)
+        const DEFAULT_APP_URL = window.location.origin;
+
+        function generateCode() {
+            const width = document.getElementById('width').value || '100%';
+            const height = document.getElementById('height').value || '800px';
+            const border = document.getElementById('border').value;
+            const borderRadius = document.getElementById('borderRadius').value;
+            const responsive = document.getElementById('responsive').checked;
+            const allowFullscreen = document.getElementById('allowFullscreen').checked;
+            const customUrl = document.getElementById('customUrl').value || DEFAULT_APP_URL;
+
+            // Generate iframe attributes
+            const iframeAttrs = [
+                `src="${customUrl}"`,
+                `width="${width}"`,
+                `height="${height}"`,
+                'frameborder="0"',
+                'loading="lazy"'
+            ];
+
+            if (allowFullscreen) {
+                iframeAttrs.push('allowfullscreen');
+            }
+
+            // Generate CSS styles
+            const styles = [];
+            if (border && border !== 'none') {
+                styles.push(`border: ${border}`);
+            }
+            if (borderRadius && borderRadius !== '0') {
+                styles.push(`border-radius: ${borderRadius}`);
+            }
+            if (responsive) {
+                styles.push('max-width: 100%');
+            }
+
+            const styleAttr = styles.length > 0 ? ` style="${styles.join('; ')}"` : '';
+
+            // Basic embed code
+            const embedCode = `<iframe ${iframeAttrs.join(' ')}${styleAttr}></iframe>`;
+
+            // WordPress/Divi specific code with container
+            const wordpressCode = `<!-- Life Journal Daily Devotions Embed -->
+<div class="life-journal-embed" style="width: 100%; ${responsive ? 'max-width: 100%; overflow: hidden;' : ''}">
+    <iframe 
+        src="${customUrl}" 
+        width="${width}" 
+        height="${height}"
+        frameborder="0"
+        loading="lazy"
+        ${allowFullscreen ? 'allowfullscreen' : ''}
+        ${styleAttr.replace('style="', '').replace('"', '')}
+        title="Life Journal Daily Devotions">
+    </iframe>
+</div>
+
+<!-- Optional: Add responsive CSS -->
+<style>
+.life-journal-embed iframe {
+    ${responsive ? 'width: 100%; height: auto; min-height: 600px;' : ''}
+    ${border && border !== 'none' ? `border: ${border};` : ''}
+    ${borderRadius && borderRadius !== '0' ? `border-radius: ${borderRadius};` : ''}
+}
+
+@media (max-width: 768px) {
+    .life-journal-embed iframe {
+        height: 100vh;
+        min-height: 500px;
+    }
+}
+</style>`;
+
+            // Update the code blocks
+            document.getElementById('embedCode').textContent = embedCode;
+            document.getElementById('wordpressCode').textContent = wordpressCode;
+
+            // Update preview
+            updatePreview(embedCode);
+        }
+
+        function updatePreview(embedCode) {
+            const preview = document.getElementById('preview');
+            preview.innerHTML = embedCode.replace(DEFAULT_APP_URL, '#');
+            
+            // Add a note about the preview
+            const note = document.createElement('p');
+            note.style.marginTop = '10px';
+            note.style.fontSize = '12px';
+            note.style.color = '#6b7280';
+            note.textContent = 'Preview shows iframe structure (actual app will load when embedded)';
+            preview.appendChild(note);
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = element.parentElement.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.background = '#059669';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#0284c7';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy to clipboard. Please select and copy manually.');
+            });
+        }
+
+        function resetDefaults() {
+            document.getElementById('width').value = '100%';
+            document.getElementById('height').value = '800px';
+            document.getElementById('border').value = 'none';
+            document.getElementById('borderRadius').value = '8px';
+            document.getElementById('responsive').checked = true;
+            document.getElementById('allowFullscreen').checked = true;
+            document.getElementById('customUrl').value = '';
+            generateCode();
+        }
+
+        // Add event listeners for real-time updates
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = ['width', 'height', 'border', 'borderRadius', 'responsive', 'allowFullscreen', 'customUrl'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                element.addEventListener('input', generateCode);
+                element.addEventListener('change', generateCode);
+            });
+
+            // Generate initial code
+            generateCode();
+        });
+    </script>
+</body>
+</html>

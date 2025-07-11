@@ -1,0 +1,33 @@
+{
+  "name": "Life Journal Daily Devotions",
+  "short_name": "Life Journal",
+  "description": "Daily Bible reading and SOAP study with community chat",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fefdf8",
+  "theme_color": "#0284c7",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/dove icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/dove icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "education", "books"],
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "life-journal-chat-server",
+  "version": "1.0.0",
+  "description": "Chat server for Life Journal Daily Devotions",
+  "main": "chat-server.js",
+  "scripts": {
+    "start": "node chat-server.js",
+    "dev": "node chat-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "cors": "^2.8.5"
+  },
+  "keywords": ["chat", "websocket", "bible", "devotions"],
+  "author": "New Hope West",
+  "license": "ISC"
+}
