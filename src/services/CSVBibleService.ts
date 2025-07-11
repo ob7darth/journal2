@@ -1,4 +1,3 @@
-import { supabase, canUseSupabase } from '../lib/supabase';
 import { BibleVerse, BiblePassage } from './BibleService';
 
 interface CSVVerse {

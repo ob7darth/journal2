@@ -28,7 +28,7 @@ class BibleGatewayService {
     }
   }
 
-  async searchVerses(limit: number = 20): Promise<BibleVerse[]> {
+  async searchVerses(_query: string, _limit: number = 20): Promise<BibleVerse[]> {
     // Bible Gateway doesn't provide a direct search API that we can use from the browser
     // Return empty array and direct users to Bible Gateway for search
     return [];
