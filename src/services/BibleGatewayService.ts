@@ -3,9 +3,6 @@ import { BibleVerse, BiblePassage } from './BibleService';
 class BibleGatewayService {
   async getPassage(book: string, chapter: number, verses: string): Promise<BiblePassage | null> {
     try {
-      // For now, we'll use a simple approach that constructs Bible Gateway URLs
-      // In a production app, you might want to use an actual Bible API
-      
       // Since we can't directly fetch from Bible Gateway due to CORS,
       // we'll return a structured response that directs users to Bible Gateway
       const passageRef = `${book} ${chapter}:${verses}`;

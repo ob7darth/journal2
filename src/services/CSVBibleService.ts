@@ -59,7 +59,7 @@ class CSVBibleService {
   }
 
   private getFallbackCSVData(): string {
-    // Fallback CSV data with ASV verses to match the Excel spreadsheet
+    // Fallback CSV data with ASV verses
     return `book,chapter,verse,text
 Genesis,1,1,"In the beginning God created the heavens and the earth."
 Genesis,1,2,"And the earth was waste and void; and darkness was upon the face of the deep: and the Spirit of God moved upon the face of the waters."
@@ -275,7 +275,7 @@ Ephesians,2,9,"not of works, that no man should glory."`;
     const uniqueBooks = new Set<string>();
     const uniqueChapters = new Set<string>();
 
-    for (const [key, chapterVerses] of this.verses) {
+    for (const [, chapterVerses] of this.verses) {
       totalVerses += chapterVerses.length;
       
       for (const verse of chapterVerses) {

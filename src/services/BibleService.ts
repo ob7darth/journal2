@@ -14,11 +14,9 @@ export interface BiblePassage {
 
 import { csvBibleService } from './CSVBibleService';
 import { bibleGatewayService } from './BibleGatewayService';
-import { supabaseBibleService } from './SupabaseBibleService';
 
 class BibleService {
-  // Use multiple data sources with priority order
-  private supabaseService = supabaseBibleService;
+  // Use CSV service for local data and Bible Gateway for external access
   private csvService = csvBibleService;
   private gatewayService = bibleGatewayService;
 
@@ -26,25 +24,7 @@ class BibleService {
     console.log(`🔍 Searching for passage: ${book} ${chapter}:${verses}`);
     
     try {
-      // Try Supabase JSON service first (highest priority)
-      if (this.supabaseService.isLoaded() && this.supabaseService.hasData()) {
-        console.log('📖 Trying Supabase JSON service...');
-        const passage = await this.supabaseService.getPassage(book, chapter, verses);
-        if (passage) {
-          console.log('✅ Found passage in Supabase JSON service');
-          return passage;
-        } else {
-          console.log('❌ Passage not found in Supabase JSON service');
-        }
-      } else {
-        console.log('⏳ Supabase JSON service not ready or has no data');
-      }
-    } catch (error) {
-      console.warn('⚠️ Error fetching from Supabase JSON service:', error);
-    }
-
-    try {
-      // Try to get from CSV service first
+      // Try to get from CSV service first for basic functionality
       console.log('📄 Trying CSV service...');
       const passage = await this.csvService.getPassage(book, chapter, verses);
       if (passage) {
@@ -57,7 +37,7 @@ class BibleService {
       console.warn('⚠️ Error fetching from CSV service:', error);
     }
 
-    // Fallback to Bible Gateway service
+    // Always provide Bible Gateway fallback
     try {
       console.log('🌐 Falling back to Bible Gateway for passage:', book, chapter, verses);
       return await this.gatewayService.getPassage(book, chapter, verses);
@@ -68,18 +48,6 @@ class BibleService {
   }
 
   async searchVerses(query: string, limit: number = 20): Promise<BibleVerse[]> {
-    try {
-      // Try Supabase JSON service first
-      if (this.supabaseService.hasData()) {
-        const results = await this.supabaseService.searchVerses(query, limit);
-        if (results.length > 0) {
-          return results;
-        }
-      }
-    } catch (error) {
-      console.error('Error searching in Supabase JSON service:', error);
-    }
-
     try {
       // Try to search in CSV service first
       const results = await this.csvService.searchVerses(query, limit);
@@ -102,15 +70,6 @@ class BibleService {
 
   async getStats(): Promise<{totalVerses: number, totalBooks: number, totalChapters: number}> {
     try {
-      // Try Supabase service first
-      if (this.supabaseService.hasData()) {
-        return await this.supabaseService.getStats();
-      }
-    } catch (error) {
-      console.error('Error getting stats from Supabase service:', error);
-    }
-
-    try {
       return await this.csvService.getStats();
     } catch (error) {
       console.error('Error getting stats from CSV service:', error);
@@ -124,25 +83,12 @@ class BibleService {
 
   // Check if Bible data is loaded
   isLoaded(): boolean {
-    return this.supabaseService.isLoaded() || this.csvService.isLoaded();
+    return this.csvService.isLoaded();
   }
 
   // Check if we have any Bible data available
   hasData(): boolean {
-    return this.supabaseService.hasData() || this.csvService.isLoaded();
-  }
-
-  // Get available books from the best available source
-  getAvailableBooks(): string[] {
-    if (this.supabaseService.hasData()) {
-      return this.supabaseService.getAvailableBooks();
-    }
-    return []; // CSV service doesn't have this method, could be added
-  }
-
-  // Configure Supabase Bible service
-  configureSupabaseSource(bucketName: string, fileName: string) {
-    this.supabaseService.configure(bucketName, fileName);
+    return this.csvService.isLoaded();
   }
 
   // Get Bible Gateway URL for external access

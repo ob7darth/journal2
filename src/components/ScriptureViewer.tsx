@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Passage } from '../types/ReadingPlan';
 import { BookOpen, ExternalLink, Loader, ChevronDown, ChevronUp } from 'lucide-react';
 import { bibleService, BiblePassage } from '../services/BibleService';
-import { supabaseBibleService } from '../services/SupabaseBibleService';
 
 interface ScriptureViewerProps {
   passage: Passage;
@@ -16,8 +15,7 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
   const [scripture, setScripture] = useState<BiblePassage | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState<boolean>(true); // Auto-expand to show content
-  const [dataLoaded, setDataLoaded] = useState<boolean>(false);
+  const [expanded, setExpanded] = useState<boolean>(false);
 
   // Use the displayText if available, otherwise format as chapter only
   const getDisplayText = (): string => {
@@ -39,35 +37,18 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
   const bibleGatewayUrl = bibleService.getBibleGatewayUrl(passage.book, passage.chapter, passage.verses, version);
 
   useEffect(() => {
-    // Check if Bible data is loaded
-    setDataLoaded(bibleService.isLoaded());
-    
     const fetchScripture = async () => {
-      // Always try to fetch scripture, not just when expanded
+      if (!expanded) return;
       
       setLoading(true);
       setError(null);
       
       try {
-        // Wait for data to load if not ready, with multiple attempts
-        let attempts = 0;
-        while (!bibleService.isLoaded() && attempts < 10) {
-          await new Promise(resolve => setTimeout(resolve, 500));
-          attempts++;
-        }
-        
         const result = await bibleService.getPassage(passage.book, passage.chapter, passage.verses);
         if (result) {
           setScripture(result);
-          setDataLoaded(true);
         } else {
-          // Check if we have any data at all
-          const stats = await bibleService.getStats();
-          if (stats.totalVerses > 0) {
-            setError(`Scripture not found: ${passage.book} ${passage.chapter}:${passage.verses}. This passage may not be available in our current Bible data.`);
-          } else {
-            setError('No Bible data loaded. Please configure your Bible data source in the Resources tab.');
-          }
+          setError('Scripture not found in local data. Please use the Bible Gateway link below.');
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unable to load scripture. Please try again later.';
@@ -79,13 +60,11 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
     };
 
     fetchScripture();
-  }, [passage.book, passage.chapter, passage.verses]); // Remove expanded dependency
+  }, [passage.book, passage.chapter, passage.verses, expanded]);
 
   const handleToggle = () => {
     setExpanded(!expanded);
   };
-
-  const dataSource = supabaseBibleService.hasData() ? 'Supabase JSON' : 'Local Data';
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-3 shadow-sm hover:shadow-md transition-shadow">
@@ -97,11 +76,7 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
           <BookOpen size={20} className="text-primary-600" />
           <div>
             <span className="font-semibold text-gray-900">{formattedPassage}</span>
-            <span className="text-sm text-gray-500 ml-2">
-              ({version})
-              {!dataLoaded && <span className="text-yellow-600 ml-1">• Loading...</span>}
-              {dataLoaded && <span className="text-green-600 ml-1">• {dataSource}</span>}
-            </span>
+            <span className="text-sm text-gray-500 ml-2">({version})</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -129,20 +104,12 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
             <div className="p-6 flex justify-center">
               <div className="flex items-center gap-2 text-gray-600">
                 <Loader size={20} className="animate-spin" />
-                <span>
-                  {!dataLoaded ? 'Loading Bible data...' : 'Loading scripture...'}
-                </span>
+                <span>Loading scripture...</span>
               </div>
             </div>
           ) : error ? (
             <div className="p-6 text-center">
-              <div className="text-red-600 mb-4">{error}</div>
-              {!dataLoaded && (
-                <div className="text-sm text-gray-600">
-                  <p className="mb-2">The Bible database is still loading. This may take a moment.</p>
-                  <p>You can read this passage on Bible Gateway using the link below.</p>
-                </div>
-              )}
+              <div className="text-gray-600 mb-4">{error}</div>
               <div className="mt-4">
                 <a 
                   href={bibleGatewayUrl}
@@ -185,10 +152,7 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
           ) : (
             <div className="p-6 text-center">
               <p className="text-gray-600 mb-4">
-                {!dataLoaded 
-                  ? 'Bible data is still loading. You can read this passage on Bible Gateway.'
-                  : 'This passage is not available in our local database. You can read it on Bible Gateway.'
-                }
+                This passage is available on Bible Gateway for complete reading.
               </p>
               <a 
                 href={bibleGatewayUrl}
