@@ -23,16 +23,7 @@ class SupabaseAuthService {
   private isInitialized = false;
 
   constructor() {
-    if (canUseSupabase()) {
-      this.initializeAuth();
-    }
     this.initialize();
-  }
-
-  private initializeAuth() {
-    if (!canUseSupabase() || !supabase) {
-      return;
-    }
   }
 
   private async initialize() {

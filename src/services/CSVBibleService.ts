@@ -13,7 +13,6 @@ class CSVBibleService {
   private loadingPromise: Promise<void> | null = null;
 
   constructor() {
-    // Auto-load on instantiation
     this.loadBibleData();
   }
 
@@ -28,38 +27,30 @@ class CSVBibleService {
 
   private async fetchAndParseCSVData(): Promise<void> {
     try {
-      console.log('Loading Bible data from CSV...');
-      
       let csvText = '';
       
-      // Load from local file
       try {
         const response = await fetch('/genesis_bible_verses.csv');
         if (response.ok) {
           csvText = await response.text();
-          console.log('Successfully loaded Bible data from local CSV file');
         } else {
           throw new Error('Local CSV file not found');
         }
       } catch (localError) {
-        console.log('Could not load local CSV file, using fallback data...');
         csvText = this.getFallbackCSVData();
       }
 
       this.parseCSVText(csvText);
       this._dataLoaded = true;
-      console.log(`Bible data loaded successfully. Parsed ${this.verses.size} chapters.`);
       
     } catch (error) {
       console.error('Error loading Bible data:', error);
-      // Load fallback data on error
       this.parseCSVText(this.getFallbackCSVData());
       this._dataLoaded = true;
     }
   }
 
   private getFallbackCSVData(): string {
-    // Fallback CSV data with ASV verses
     return `book,chapter,verse,text
 Genesis,1,1,"In the beginning God created the heavens and the earth."
 Genesis,1,2,"And the earth was waste and void; and darkness was upon the face of the deep: and the Spirit of God moved upon the face of the waters."
