@@ -34,13 +34,13 @@ class SupabaseAuthService {
     }
 
     // Get initial session
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabase!.auth.getSession();
     if (session?.user) {
       await this.setUserFromSession(session.user);
     }
 
     // Listen for auth changes
-    supabase.auth.onAuthStateChange(async (event, session) => {
+    supabase!.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
         await this.setUserFromSession(session.user);
       } else if (event === 'SIGNED_OUT') {
@@ -56,7 +56,7 @@ class SupabaseAuthService {
   private async setUserFromSession(user: User) {
     try {
       // Get profile (should be created by trigger)
-      const { data: profile, error } = await supabase
+      const { data: profile, error } = await supabase!
         .from('profiles')
         .select('*')
         .eq('id', user.id)
@@ -92,7 +92,7 @@ class SupabaseAuthService {
       throw new Error('Supabase is not configured. Please check your environment variables.');
     }
 
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabase!.auth.signUp({
       email,
       password,
       options: {
@@ -138,7 +138,7 @@ class SupabaseAuthService {
       throw new Error('Supabase is not configured. Please check your environment variables.');
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase!.auth.signInWithPassword({
       email,
       password
     });
@@ -197,7 +197,7 @@ class SupabaseAuthService {
     }
 
     // Sign up the guest user
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabase!.auth.signUp({
       email,
       password,
       options: {
@@ -255,7 +255,7 @@ class SupabaseAuthService {
         }));
 
         if (supabaseEntries.length > 0) {
-          const { error } = await supabase
+          const { error } = await supabase!
             .from('soap_entries')
             .insert(supabaseEntries);
 
@@ -286,7 +286,7 @@ class SupabaseAuthService {
       this.notifyAuthCallbacks();
     } else {
       // For authenticated users, sign out from Supabase
-      const { error } = await supabase.auth.signOut();
+      const { error } = await supabase!.auth.signOut();
       if (error) {
         console.error('Error signing out:', error);
       }
@@ -303,7 +303,7 @@ class SupabaseAuthService {
       throw new Error('Password reset is only available for member accounts. Please create a member account to use this feature.');
     }
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase!.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`
     });
 
