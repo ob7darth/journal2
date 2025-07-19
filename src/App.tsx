@@ -64,11 +64,20 @@ function App() {
     // Add a small delay to ensure auth service is fully initialized
     const timer = setTimeout(() => {
       if (!user && !showSplash) {
-        console.log('🔄 No user found, showing auth modal');
-        setShowAuthModal(true);
-        setAuthMode('signin');
+        console.log('🔄 No user found, auto-signing in as guest');
+        // Auto sign in as guest instead of showing auth modal
+        authService.signInAsGuest('Guest User')
+          .then(() => {
+            console.log('✅ Auto guest sign-in successful');
+          })
+          .catch(error => {
+            console.error('🚨 Auto guest sign-in failed:', error);
+            // Only show auth modal if guest mode also fails
+            setShowAuthModal(true);
+            setAuthMode('signin');
+          });
       }
-    }, 1000);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [user, showSplash]);

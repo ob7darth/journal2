@@ -50,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({ planName, currentDay, totalDays, user, 
                 <div className="text-left hidden sm:block">
                   <p className="text-sm font-medium text-gray-900">{user.name}</p>
                   <p className="text-xs text-gray-500">
-                    {user.isGuest ? 'Guest' : 'Member'}
+                    {user.isGuest ? 'Guest Mode' : 'Member'}
                   </p>
                 </div>
               </button>

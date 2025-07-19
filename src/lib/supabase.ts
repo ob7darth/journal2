@@ -19,6 +19,7 @@ export const isSupabaseConfigured = !!(
   supabaseAnonKey && 
   supabaseUrl !== 'your_supabase_project_url' &&
   supabaseAnonKey !== 'your_supabase_anon_key' &&
+  supabaseUrl.includes('supabase.co') &&
   isValidUrl(supabaseUrl)
 );
 

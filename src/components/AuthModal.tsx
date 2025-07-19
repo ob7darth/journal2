@@ -199,12 +199,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
           <div className="mb-6">
             {mode === 'signup' && (
               <p className="text-gray-600">
-                Create a member account to sync your devotions across all your devices and never lose your spiritual journey.
+                Create a member account to sync your devotions across devices. If you're having trouble, you can always use guest mode.
               </p>
             )}
             {mode === 'signin' && (
               <p className="text-gray-600">
-                Welcome back! Sign in to access your devotions from any device.
+                Welcome back! Sign in to access your devotions from any device, or continue as a guest.
               </p>
             )}
             {mode === 'upgrade' && (
@@ -416,48 +416,41 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
           {/* Create Account Section - Prominent but Secondary */}
           {mode === 'signin' && (
             <>
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <div className="text-center">
-                <p className="text-gray-700 mb-4 font-medium">New user? Create an account</p>
-                <button
-                  onClick={() => setMode('signup')}
-                  className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold"
-                >
-                  Sign Up
-                </button>
-              </div>
+            {/* Guest Mode Button - Make this more prominent */}
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    setLoading(true);
+                    const guestName = formData.name.trim() || 'Guest User';
+                    console.log('🔄 Signing in as guest:', guestName);
+                    await authService.signInAsGuest(guestName);
+                    console.log('✅ Guest sign in successful');
+                    onSuccess?.();
+                    handleClose();
+                  } catch (err) {
+                    console.error('🚨 Guest sign in error:', err);
+                    setError('Failed to sign in as guest. Please try again.');
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+                className="w-full bg-green-600 text-white py-4 px-6 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 font-semibold text-lg"
+              >
+                <User size={20} />
+                Continue as Guest (Recommended)
+              </button>
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                Start using the app immediately. All features available, data stored locally.
+              </p>
             </div>
-            
-            {/* Guest Mode Button */}
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  setLoading(true);
-                  const guestName = formData.name.trim() || 'Guest User';
-                  console.log('🔄 Signing in as guest:', guestName);
-                  await authService.signInAsGuest(guestName);
-                  console.log('✅ Guest sign in successful');
-                  onSuccess?.();
-                  handleClose();
-                } catch (err) {
-                  console.error('🚨 Guest sign in error:', err);
-                  setError('Failed to sign in as guest. Please try again.');
-                } finally {
-                  setLoading(false);
-                }
-              }}
-              disabled={loading}
-              className="w-full bg-gray-600 text-white py-3 px-4 rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-            >
-              <User size={18} />
-              Continue as Guest
-            </button>
             
             {/* Name field for guest mode */}
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Your Name (for guest mode)
+                Your Name (Optional)
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -465,11 +458,22 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
                   type="text"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Enter your name"
+                  placeholder="Enter your name (optional)"
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-1">Optional - used for guest mode only</p>
+            </div>
+            
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <div className="text-center">
+                <p className="text-gray-700 mb-4 font-medium">Want to sync across devices?</p>
+                <button
+                  onClick={() => setMode('signup')}
+                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                >
+                  Create Member Account
+                </button>
+              </div>
             </div>
             </>
           )}

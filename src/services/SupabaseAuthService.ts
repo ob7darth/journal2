@@ -138,7 +138,7 @@ class SupabaseAuthService {
 
   async signUp(email: string, password: string, fullName: string): Promise<AuthUser> {
     if (!canUseSupabase() || !supabase) {
-      throw new Error('Supabase is not configured. Please check your environment variables.');
+      throw new Error('Member accounts are temporarily unavailable. Please use guest mode for now.');
     }
 
     console.log('🔄 Starting sign up process for:', email, 'with name:', fullName);
@@ -185,7 +185,7 @@ class SupabaseAuthService {
 
   async signIn(email: string, password: string): Promise<AuthUser> {
     if (!canUseSupabase() || !supabase) {
-      throw new Error('Supabase is not configured. Please check your environment variables.');
+      throw new Error('Member accounts are temporarily unavailable. Please use guest mode for now.');
     }
 
     console.log('🔄 Starting sign in process for:', email);
