@@ -1,0 +1,49 @@
+<!-- Life Journal Daily Devotions Embed for Divi -->
+<div class="life-journal-embed" style="width: 100%; max-width: 100%; overflow: hidden; margin: 20px 0;">
+    <iframe 
+        src="https://tranquil-biscuit-2ef9ff.netlify.app" 
+        width="100%" 
+        height="800px"
+        frameborder="0"
+        loading="lazy"
+        allowfullscreen
+        style="border: 1px solid #e5e7eb; border-radius: 12px; max-width: 100%;"
+        title="Life Journal Daily Devotions">
+    </iframe>
+</div>
+
+<!-- Optional: Add responsive CSS -->
+<style>
+.life-journal-embed iframe {
+    width: 100%; 
+    height: auto; 
+    min-height: 600px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.life-journal-embed iframe:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .life-journal-embed iframe {
+        height: 100vh;
+        min-height: 500px;
+        border-radius: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .life-journal-embed {
+        margin: 0 -20px;
+    }
+    
+    .life-journal-embed iframe {
+        height: calc(100vh - 60px);
+        border-radius: 0;
+    }
+}
+</style>
