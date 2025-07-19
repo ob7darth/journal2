@@ -55,9 +55,12 @@ class SupabaseAuthService {
 
   private async setUserFromSession(user: User) {
     try {
-      console.log('🔄 Setting user from session:', user.id);
+      console.log('🔄 Setting user from session:', user.id, 'Email:', user.email);
+      console.log('🔄 User metadata:', user.user_metadata);
+      console.log('🔄 Supabase client available:', !!supabase);
 
       // Get profile (should be created by trigger)
+      console.log('🔄 Fetching profile for user:', user.id);
       const { data: profile, error } = await supabase!
         .from('profiles')
         .select('*')
@@ -65,24 +68,27 @@ class SupabaseAuthService {
         .single();
 
       if (error) {
-        console.error('🚨 Error fetching profile:', error);
+        console.error('🚨 Error fetching profile:', error.message, error.code, error.details);
         
         // If profile doesn't exist, try to create it
         if (error.code === 'PGRST116') {
           console.log('📝 Profile not found, creating new profile...');
+          const profileData = {
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+            is_guest: false
+          };
+          console.log('📝 Creating profile with data:', profileData);
+          
           const { data: newProfile, error: createError } = await supabase!
             .from('profiles')
-            .insert({
-              id: user.id,
-              email: user.email,
-              full_name: user.user_metadata?.full_name || 'User',
-              is_guest: false
-            })
+            .insert(profileData)
             .select()
             .single();
 
           if (createError) {
-            console.error('🚨 Error creating profile:', createError);
+            console.error('🚨 Error creating profile:', createError.message, createError.code, createError.details);
             return;
           }
 
@@ -99,6 +105,9 @@ class SupabaseAuthService {
           this.notifyAuthCallbacks();
           return;
         }
+        
+        // For other errors, log and return
+        console.error('🚨 Profile fetch failed with non-recoverable error');
         return;
       }
 
@@ -121,6 +130,9 @@ class SupabaseAuthService {
       this.notifyAuthCallbacks();
     } catch (error) {
       console.error('🚨 Error setting user from session:', error);
+      if (error instanceof Error) {
+        console.error('🚨 Error details:', error.message, error.stack);
+      }
     }
   }
 
@@ -129,7 +141,10 @@ class SupabaseAuthService {
       throw new Error('Supabase is not configured. Please check your environment variables.');
     }
 
-    console.log('🔄 Starting sign up process for:', email);
+    console.log('🔄 Starting sign up process for:', email, 'with name:', fullName);
+    console.log('🔄 Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+    console.log('🔄 Environment check - URL exists:', !!import.meta.env.VITE_SUPABASE_URL);
+    console.log('🔄 Environment check - Key exists:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
 
     const { data, error } = await supabase!.auth.signUp({
       email,
@@ -142,7 +157,7 @@ class SupabaseAuthService {
     });
 
     if (error) {
-      console.error('🚨 Sign up error:', error);
+      console.error('🚨 Sign up error:', error.message, error.status, error);
       throw new Error(error.message);
     }
 
@@ -150,7 +165,7 @@ class SupabaseAuthService {
       throw new Error('Failed to create user');
     }
 
-    console.log('✅ User created successfully:', data.user.id);
+    console.log('✅ User created successfully:', data.user.id, 'Session:', !!data.session);
 
     // Check if email confirmation is required
     if (!data.session && data.user && !data.user.email_confirmed_at) {
@@ -174,6 +189,10 @@ class SupabaseAuthService {
     }
 
     console.log('🔄 Starting sign in process for:', email);
+    console.log('🔄 Supabase client status:', !!supabase);
+    console.log('🔄 Environment variables check:');
+    console.log('  - VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
+    console.log('  - VITE_SUPABASE_ANON_KEY length:', import.meta.env.VITE_SUPABASE_ANON_KEY?.length);
 
     const { data, error } = await supabase!.auth.signInWithPassword({
       email,
@@ -181,7 +200,9 @@ class SupabaseAuthService {
     });
 
     if (error) {
-      console.error('🚨 Sign in error:', error);
+      console.error('🚨 Sign in error:', error.message, error.status, error);
+      console.error('🚨 Full error object:', JSON.stringify(error, null, 2));
+      
       // Provide more user-friendly error messages
       if (error.message.includes('Invalid login credentials')) {
         throw new Error('Invalid email or password. Please check your credentials and try again.');
@@ -189,23 +210,35 @@ class SupabaseAuthService {
         throw new Error('Please check your email and click the confirmation link before signing in.');
       } else if (error.message.includes('Too many requests')) {
         throw new Error('Too many login attempts. Please wait a few minutes before trying again.');
+      } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        throw new Error('Network connection error. Please check your internet connection and try again.');
       } else {
         throw new Error(`Login failed: ${error.message}`);
       }
     }
 
     if (!data.user) {
+      console.error('🚨 No user returned from sign in');
       throw new Error('Failed to sign in');
     }
 
-    console.log('✅ Sign in successful:', data.user.id);
+    console.log('✅ Sign in successful:', data.user.id, 'Session:', !!data.session);
+    console.log('✅ User data:', {
+      id: data.user.id,
+      email: data.user.email,
+      confirmed_at: data.user.email_confirmed_at,
+      metadata: data.user.user_metadata
+    });
 
     // Directly set user from session
     if (data.session?.user) {
+      console.log('🔄 Setting user from successful sign in...');
       await this.setUserFromSession(data.session.user);
       if (this.currentUser) {
+        console.log('✅ User set successfully:', this.currentUser.name);
         return this.currentUser;
       }
+      console.error('🚨 User not set after setUserFromSession call');
     }
 
     throw new Error('Sign in successful but unable to load user profile. Please try refreshing the page.');

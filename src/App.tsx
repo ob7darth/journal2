@@ -64,9 +64,10 @@ function App() {
     // Add a small delay to ensure auth service is fully initialized
     const timer = setTimeout(() => {
       if (!user && !showSplash) {
-      setShowAuthModal(true);
-      setAuthMode('signin');
-    }
+        console.log('🔄 No user found, showing auth modal');
+        setShowAuthModal(true);
+        setAuthMode('signin');
+      }
     }, 1000);
 
     return () => clearTimeout(timer);
@@ -74,8 +75,10 @@ function App() {
 
   // Load user-specific entries
   const loadUserEntries = () => {
+    console.log('🔄 Loading user entries...');
     supabaseSOAPService.getAllEntries()
       .then(entries => {
+        console.log('✅ Loaded', Object.keys(entries).length, 'SOAP entries');
         setSoapEntries(entries);
       })
       .catch(error => {
@@ -108,9 +111,11 @@ function App() {
   };
 
   const handleAuthSuccess = () => {
+    console.log('🔄 Auth success callback triggered');
     // Reload entries for the new user
     const currentUser = authService.getCurrentUser();
     if (currentUser) {
+      console.log('✅ Current user after auth success:', currentUser.name, currentUser.isGuest ? '(guest)' : '(member)');
       loadUserEntries();
     }
     setShowAuthModal(false);
