@@ -168,7 +168,10 @@ class SupabaseAuthService {
       }
 
       if (error) {
-        console.error('🚨 Error fetching profile:', error.message, error.code, error.details);
+        // Only log unexpected errors, not handled timeouts or missing profiles
+        if (error.code !== 'PGRST116' && error.code !== 'TIMEOUT') {
+          console.error('🚨 Error fetching profile:', error.message, error.code, error.details);
+        }
         
         // If profile doesn't exist, try to create it
         if (error.code === 'PGRST116' || error.code === 'TIMEOUT') {
