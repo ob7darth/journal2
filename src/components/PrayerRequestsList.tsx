@@ -38,166 +38,153 @@ const PrayerRequestsList: React.FC<PrayerRequestsListProps> = ({
     setLoading(true);
     
     try {
-      if (!user || user.isGuest) {
-        // For guest users, load from localStorage
-        const guestRequests = JSON.parse(localStorage.getItem('guest-prayer-requests') || '[]');
-        const sampleRequests: PrayerRequest[] = [
-          {
-            id: '1',
-            title: 'Healing for my grandmother',
-            description: 'Please pray for my grandmother who is in the hospital. She needs strength and healing.',
-            isAnonymous: false,
-            isAnswered: false,
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
-            userName: 'Sarah M.',
-            responseCount: 12
-          },
-          {
-            id: '2',
-            title: 'Job interview tomorrow',
-            description: 'I have an important job interview tomorrow. Praying for peace and wisdom.',
-            isAnonymous: true,
-            isAnswered: false,
-            createdAt: new Date(Date.now() - 43200000).toISOString(),
-            userName: 'Anonymous',
-            responseCount: 8
-          },
-          {
-            id: '3',
-            title: 'Marriage restoration',
-            description: 'Please pray for healing and restoration in my marriage. We need God\'s guidance.',
-            isAnonymous: false,
-            isAnswered: true,
-            answeredAt: new Date(Date.now() - 172800000).toISOString(),
-            answerDescription: 'Thank you all for your prayers! We had a breakthrough conversation and are going to counseling together.',
-            createdAt: new Date(Date.now() - 604800000).toISOString(),
-            userName: 'Mike R.',
-            responseCount: 25
-          },
-          {
-            id: '4',
-            title: 'Strength for caregiving',
-            description: 'Caring for my elderly father is becoming overwhelming. Please pray for patience and strength.',
-            isAnonymous: false,
-            isAnswered: false,
-            createdAt: new Date(Date.now() - 259200000).toISOString(),
-            userName: 'Jennifer K.',
-            responseCount: 15
-          },
-          {
-            id: '5',
-            title: 'Financial provision',
-            description: 'Struggling to make ends meet this month. Trusting God for His provision.',
-            isAnonymous: true,
-            isAnswered: false,
-            createdAt: new Date(Date.now() - 345600000).toISOString(),
-            userName: 'Anonymous',
-            responseCount: 22
-          },
-          {
-            id: '6',
-            title: 'College decision guidance',
-            description: 'My daughter is choosing between colleges. Praying for wisdom and God\'s direction.',
-            isAnonymous: false,
-            isAnswered: false,
-            createdAt: new Date(Date.now() - 432000000).toISOString(),
-            userName: 'Robert T.',
-            responseCount: 9
+      // Always show sample prayer requests for all users
+      const userRequests = user && !user.isGuest ? 
+        JSON.parse(localStorage.getItem(`prayer-requests-${user.id}`) || '[]') :
+        JSON.parse(localStorage.getItem('guest-prayer-requests') || '[]');
+      
+      const sampleRequests: PrayerRequest[] = [
+        {
+          id: '1',
+          title: 'Healing for my grandmother',
+          description: 'Please pray for my grandmother who is in the hospital. She needs strength and healing.',
+          isAnonymous: false,
+          isAnswered: false,
+          createdAt: new Date(Date.now() - 86400000).toISOString(),
+          userName: 'Sarah M.',
+          responseCount: 12
+        },
+        {
+          id: '2',
+          title: 'Job interview tomorrow',
+          description: 'I have an important job interview tomorrow. Praying for peace and wisdom.',
+          isAnonymous: true,
+          isAnswered: false,
+          createdAt: new Date(Date.now() - 43200000).toISOString(),
+          userName: 'Anonymous',
+          responseCount: 8
+        },
+        {
+          id: '3',
+          title: 'Marriage restoration',
+          description: 'Please pray for healing and restoration in my marriage. We need God\'s guidance.',
+          isAnonymous: false,
+          isAnswered: true,
+          answeredAt: new Date(Date.now() - 172800000).toISOString(),
+          answerDescription: 'Thank you all for your prayers! We had a breakthrough conversation and are going to counseling together.',
+          createdAt: new Date(Date.now() - 604800000).toISOString(),
+          userName: 'Mike R.',
+          responseCount: 25
+        },
+        {
+          id: '4',
+          title: 'Strength for caregiving',
+          description: 'Caring for my elderly father is becoming overwhelming. Please pray for patience and strength.',
+          isAnonymous: false,
+          isAnswered: false,
+          createdAt: new Date(Date.now() - 259200000).toISOString(),
+          userName: 'Jennifer K.',
+          responseCount: 15
+        },
+        {
+          id: '5',
+          title: 'Financial provision',
+          description: 'Struggling to make ends meet this month. Trusting God for His provision.',
+          isAnonymous: true,
+          isAnswered: false,
+          createdAt: new Date(Date.now() - 345600000).toISOString(),
+          userName: 'Anonymous',
+          responseCount: 22
+        },
+        {
+          id: '6',
+          title: 'College decision guidance',
+          description: 'My daughter is choosing between colleges. Praying for wisdom and God\'s direction.',
+          isAnonymous: false,
+          isAnswered: false,
+          createdAt: new Date(Date.now() - 432000000).toISOString(),
+          userName: 'Robert T.',
+          responseCount: 9
+        },
+        {
+          id: '7',
+          title: 'Health concerns',
+          description: 'Waiting for test results and feeling anxious. Please pray for peace and good news.',
+          isAnonymous: true,
+          isAnswered: false,
+          createdAt: new Date(Date.now() - 518400000).toISOString(),
+          userName: 'Anonymous',
+          responseCount: 18
+        },
+        {
+          id: '8',
+          title: 'New business venture',
+          description: 'Starting a new business and need God\'s guidance and blessing on this endeavor.',
+          isAnonymous: false,
+          isAnswered: false,
+          createdAt: new Date(Date.now() - 604800000).toISOString(),
+          userName: 'David L.',
+          responseCount: 11
+        }
+      ];
+      
+      // Combine user requests with sample requests
+      const combinedRequests = [...userRequests, ...sampleRequests]
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, limit);
+      
+      setRequests(combinedRequests);
+      
+      // Try to load from Supabase for authenticated users (but don't block on it)
+      if (user && !user.isGuest && supabase) {
+        try {
+          const { data, error } = await supabase
+            .from('prayer_requests')
+            .select(`
+              id,
+              title,
+              description,
+              is_anonymous,
+              is_answered,
+              answered_at,
+              answer_description,
+              created_at,
+              profiles!inner(full_name)
+            `)
+            .eq('is_public', true)
+            .gte('expires_at', new Date().toISOString())
+            .order('created_at', { ascending: false })
+            .limit(Math.max(limit - userRequests.length, 1));
+
+          if (!error && data && data.length > 0) {
+            const formattedRequests: PrayerRequest[] = data.map((req: any) => ({
+              id: `db_${req.id}`,
+              title: req.title,
+              description: req.description,
+              isAnonymous: req.is_anonymous,
+              isAnswered: req.is_answered,
+              answeredAt: req.answered_at,
+              answerDescription: req.answer_description,
+              createdAt: req.created_at,
+              userName: req.is_anonymous ? 'Anonymous' : req.profiles.full_name,
+              responseCount: 0
+            }));
+
+            // Merge database requests with existing requests
+            const allRequests = [...userRequests, ...formattedRequests, ...sampleRequests]
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+              .slice(0, limit);
+            
+            setRequests(allRequests);
           }
-        ];
-        
-        const combinedRequests = [...guestRequests, ...sampleRequests]
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-          .slice(0, limit);
-        
-        setRequests(combinedRequests);
-      } else {
-        // For authenticated users, load from Supabase
-        if (!supabase) {
-          console.error('Supabase client not available');
-          // Fallback to sample data if Supabase not available
-          const sampleRequests: PrayerRequest[] = [
-            {
-              id: '1',
-              title: 'Healing for my grandmother',
-              description: 'Please pray for my grandmother who is in the hospital. She needs strength and healing.',
-              isAnonymous: false,
-              isAnswered: false,
-              createdAt: new Date(Date.now() - 86400000).toISOString(),
-              userName: 'Sarah M.',
-              responseCount: 12
-            },
-            {
-              id: '2',
-              title: 'Job interview tomorrow',
-              description: 'I have an important job interview tomorrow. Praying for peace and wisdom.',
-              isAnonymous: true,
-              isAnswered: false,
-              createdAt: new Date(Date.now() - 43200000).toISOString(),
-              userName: 'Anonymous',
-              responseCount: 8
-            }
-          ];
-          setRequests(sampleRequests.slice(0, limit));
-          return;
+        } catch (dbError) {
+          console.log('Database requests unavailable, using sample data');
         }
-        
-        const { data, error } = await supabase
-          .from('prayer_requests')
-          .select(`
-            id,
-            title,
-            description,
-            is_anonymous,
-            is_answered,
-            answered_at,
-            answer_description,
-            created_at,
-            profiles!inner(full_name)
-          `)
-          .eq('is_public', true)
-          .gte('expires_at', new Date().toISOString())
-          .order('created_at', { ascending: false })
-          .limit(limit);
-
-        if (error) {
-          console.error('Error loading prayer requests:', error);
-          // Fallback to sample data on error
-          const sampleRequests: PrayerRequest[] = [
-            {
-              id: '1',
-              title: 'Healing for my grandmother',
-              description: 'Please pray for my grandmother who is in the hospital. She needs strength and healing.',
-              isAnonymous: false,
-              isAnswered: false,
-              createdAt: new Date(Date.now() - 86400000).toISOString(),
-              userName: 'Sarah M.',
-              responseCount: 12
-            }
-          ];
-          setRequests(sampleRequests.slice(0, limit));
-          return;
-        }
-
-        const formattedRequests: PrayerRequest[] = data.map((req: any) => ({
-          id: req.id,
-          title: req.title,
-          description: req.description,
-          isAnonymous: req.is_anonymous,
-          isAnswered: req.is_answered,
-          answeredAt: req.answered_at,
-          answerDescription: req.answer_description,
-          createdAt: req.created_at,
-          userName: req.is_anonymous ? 'Anonymous' : req.profiles.full_name,
-          responseCount: 0 // Would need a separate query to count responses
-        }));
-
-        setRequests(formattedRequests);
       }
     } catch (error) {
       console.error('Error loading prayer requests:', error);
-      // Always provide fallback data on any error
-      const fallbackRequests: PrayerRequest[] = [
+      // Fallback to sample data on any error
+      const sampleRequests: PrayerRequest[] = [
         {
           id: '1',
           title: 'Healing for my grandmother',
@@ -219,7 +206,7 @@ const PrayerRequestsList: React.FC<PrayerRequestsListProps> = ({
           responseCount: 8
         }
       ];
-      setRequests(fallbackRequests.slice(0, limit));
+      setRequests(sampleRequests.slice(0, limit));
     } finally {
       setLoading(false);
     }
