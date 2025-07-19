@@ -18,6 +18,7 @@ class SupabaseSOAPService {
       };
       try {
         localStorage.setItem('soap-entries', JSON.stringify(entries));
+        console.log('✅ SOAP entry saved to localStorage for day:', day);
       } catch (error) {
         console.error('Failed to save to localStorage:', error);
         throw new Error('Failed to save entry locally');
@@ -27,6 +28,7 @@ class SupabaseSOAPService {
 
     // For authenticated users, save to Supabase
     try {
+      console.log('🔄 Saving SOAP entry to Supabase for day:', day, 'user:', user.id);
       const { error } = await supabase!
         .from('soap_entries')
         .upsert({
@@ -40,8 +42,10 @@ class SupabaseSOAPService {
         });
 
       if (error) {
+        console.error('🚨 Supabase save error:', error);
         throw new Error(`Failed to save SOAP entry: ${error.message}`);
       }
+      console.log('✅ SOAP entry saved to Supabase successfully');
     } catch (error) {
       console.error('Supabase save error:', error);
       // Fallback to localStorage if Supabase fails
@@ -51,7 +55,7 @@ class SupabaseSOAPService {
         ...entry
       };
       localStorage.setItem('soap-entries', JSON.stringify(entries));
-      console.warn('Saved to localStorage as fallback');
+      console.warn('⚠️ Saved to localStorage as fallback due to Supabase error');
     }
   }
 

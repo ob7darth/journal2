@@ -83,10 +83,21 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
         updatedAt: new Date().toISOString()
       };
 
+      console.log('🔄 Attempting to save SOAP entry for day:', day);
+      console.log('🔄 Entry data:', {
+        title: entry.title ? 'has title' : 'no title',
+        scripture: entry.scripture ? 'has scripture' : 'no scripture',
+        observation: entry.observation ? 'has observation' : 'no observation',
+        application: entry.application ? 'has application' : 'no application',
+        prayer: entry.prayer ? 'has prayer' : 'no prayer'
+      });
+
       // Simulate save delay for better UX
       await new Promise(resolve => setTimeout(resolve, 500));
       
       onSave(day, entry);
+      
+      console.log('✅ SOAP entry save completed');
       
       // Show appropriate success message
       if (isComplete) {
