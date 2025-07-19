@@ -7,7 +7,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
-    minify: 'terser',
+    minify: true,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -20,12 +20,6 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ['sql.js']
-  },
-  server: {
-    headers: {
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Opener-Policy': 'same-origin',
-    }
   },
   preview: {
     port: 4173,

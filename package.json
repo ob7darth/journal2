@@ -12,7 +12,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "type-check": "tsc --noEmit",
-    "prebuild": "npm install && npm run type-check",
+    "prebuild": "npm run type-check",
     "clean": "rm -rf dist node_modules/.vite package-lock.json",
     "build:prod": "npm run clean && npm run build"
   },
