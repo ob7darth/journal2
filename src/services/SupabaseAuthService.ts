@@ -33,14 +33,43 @@ class SupabaseAuthService {
       return;
     }
 
-    // Get initial session
-    const { data: { session } } = await supabase!.auth.getSession();
-    if (session?.user) {
-      await this.setUserFromSession(session.user);
+    try {
+      // Get initial session
+      const { data: { session }, error } = await supabase!.auth.getSession();
+      
+      if (error) {
+        console.error('🚨 Error getting session:', error);
+        // Check if it's a refresh token error
+        if (error.message?.includes('Refresh Token Not Found') || 
+            error.message?.includes('Invalid Refresh Token')) {
+          console.log('🔄 Clearing invalid session due to refresh token error');
+          await this.forceClearSessionAndSignOut();
+          return;
+        }
+      }
+      
+      if (session?.user) {
+        await this.setUserFromSession(session.user);
+      }
+    } catch (error) {
+      console.error('🚨 Error during session initialization:', error);
+      if (error instanceof Error && 
+          (error.message?.includes('Refresh Token Not Found') || 
+           error.message?.includes('Invalid Refresh Token'))) {
+        console.log('🔄 Clearing invalid session due to refresh token error');
+        await this.forceClearSessionAndSignOut();
+        return;
+      }
     }
 
     // Listen for auth changes
     supabase!.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'TOKEN_REFRESHED' && !session) {
+        console.log('🔄 Token refresh failed, clearing session');
+        await this.forceClearSessionAndSignOut();
+        return;
+      }
+      
       if (event === 'SIGNED_IN' && session?.user) {
         await this.setUserFromSession(session.user);
       } else if (event === 'SIGNED_OUT') {
@@ -51,6 +80,49 @@ class SupabaseAuthService {
 
     this.isInitialized = true;
     this.notifyAuthCallbacks();
+  }
+
+  private async forceClearSessionAndSignOut() {
+    try {
+      console.log('🔄 Force clearing session and signing out');
+      
+      // Clear all Supabase-related tokens from localStorage
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('sb-')) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+      
+      // Clear session storage as well
+      const sessionKeysToRemove = [];
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key && key.startsWith('sb-')) {
+          sessionKeysToRemove.push(key);
+        }
+      }
+      sessionKeysToRemove.forEach(key => sessionStorage.removeItem(key));
+      
+      // Sign out from Supabase
+      await supabase!.auth.signOut();
+      
+      // Reset current user state
+      this.currentUser = null;
+      
+      // Notify callbacks
+      this.notifyAuthCallbacks();
+      
+      console.log('✅ Session cleared successfully');
+      
+    } catch (error) {
+      console.error('🚨 Error during force clear session:', error);
+      // Even if there's an error, reset the user state
+      this.currentUser = null;
+      this.notifyAuthCallbacks();
+    }
   }
 
   private async setUserFromSession(user: User) {
