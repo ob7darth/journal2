@@ -86,28 +86,46 @@ class SupabaseAuthService {
     try {
       console.log('🔄 Force clearing session and signing out');
       
-      // Clear all Supabase-related tokens from localStorage
-      const keysToRemove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('sb-')) {
-          keysToRemove.push(key);
-        }
+      // More comprehensive clearing of Supabase session data
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      if (supabaseUrl) {
+        const urlObj = new URL(supabaseUrl);
+        const projectRef = urlObj.hostname.split('.')[0];
+        
+        // Clear all possible Supabase keys
+        const keysToCheck = [
+          `sb-${projectRef}-auth-token`,
+          `sb-${projectRef}-auth-token-code-verifier`,
+          `supabase.auth.token`,
+          'supabase.auth.refreshToken',
+          'supabase.auth.expiresAt'
+        ];
+        
+        // Clear from localStorage
+        keysToCheck.forEach(key => {
+          localStorage.removeItem(key);
+        });
+        
+        // Clear all keys that start with sb- from both storages
+        const allLocalKeys = Object.keys(localStorage);
+        allLocalKeys.forEach(key => {
+          if (key.startsWith('sb-') || key.includes('supabase')) {
+            localStorage.removeItem(key);
+          }
+        });
+        
+        const allSessionKeys = Object.keys(sessionStorage);
+        allSessionKeys.forEach(key => {
+          if (key.startsWith('sb-') || key.includes('supabase')) {
+            sessionStorage.removeItem(key);
+          }
+        });
       }
-      keysToRemove.forEach(key => localStorage.removeItem(key));
-      
-      // Clear session storage as well
-      const sessionKeysToRemove = [];
-      for (let i = 0; i < sessionStorage.length; i++) {
-        const key = sessionStorage.key(i);
-        if (key && key.startsWith('sb-')) {
-          sessionKeysToRemove.push(key);
-        }
-      }
-      sessionKeysToRemove.forEach(key => sessionStorage.removeItem(key));
       
       // Sign out from Supabase
-      await supabase!.auth.signOut();
+      if (supabase) {
+        await supabase.auth.signOut({ scope: 'local' });
+      }
       
       // Reset current user state
       this.currentUser = null;
