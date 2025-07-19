@@ -28,12 +28,14 @@ class SupabaseAuthService {
 
   private async initialize() {
     if (!canUseSupabase() || !supabase) {
+      console.log('🔄 Supabase not configured, skipping auth initialization');
       this.isInitialized = true;
       this.notifyAuthCallbacks();
       return;
     }
 
     try {
+      console.log('🔄 Initializing Supabase auth...');
       // Get initial session
       const { data: { session }, error } = await supabase!.auth.getSession();
       
@@ -44,11 +46,10 @@ class SupabaseAuthService {
             error.message?.includes('Invalid Refresh Token')) {
           console.log('🔄 Clearing invalid session due to refresh token error');
           await this.forceClearSessionAndSignOut();
-          return;
+          // Don't return here, continue with initialization
         }
-      }
-      
-      if (session?.user) {
+      } else if (session?.user) {
+        console.log('🔄 Found existing session for user:', session.user.id);
         await this.setUserFromSession(session.user);
       }
     } catch (error) {
@@ -58,12 +59,14 @@ class SupabaseAuthService {
            error.message?.includes('Invalid Refresh Token'))) {
         console.log('🔄 Clearing invalid session due to refresh token error');
         await this.forceClearSessionAndSignOut();
-        return;
+        // Don't return here, continue with initialization
       }
     }
 
     // Listen for auth changes
     supabase!.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 Auth state change:', event, session ? 'has session' : 'no session');
+      
       if (event === 'TOKEN_REFRESHED' && !session) {
         console.log('🔄 Token refresh failed, clearing session');
         await this.forceClearSessionAndSignOut();
@@ -71,14 +74,17 @@ class SupabaseAuthService {
       }
       
       if (event === 'SIGNED_IN' && session?.user) {
+        console.log('🔄 User signed in:', session.user.id);
         await this.setUserFromSession(session.user);
       } else if (event === 'SIGNED_OUT') {
+        console.log('🔄 User signed out');
         this.currentUser = null;
         this.notifyAuthCallbacks();
       }
     });
 
     this.isInitialized = true;
+    console.log('🔄 Auth service initialized');
     this.notifyAuthCallbacks();
   }
 
@@ -86,45 +92,33 @@ class SupabaseAuthService {
     try {
       console.log('🔄 Force clearing session and signing out');
       
-      // More comprehensive clearing of Supabase session data
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      if (supabaseUrl) {
-        const urlObj = new URL(supabaseUrl);
-        const projectRef = urlObj.hostname.split('.')[0];
-        
-        // Clear all possible Supabase keys
-        const keysToCheck = [
-          `sb-${projectRef}-auth-token`,
-          `sb-${projectRef}-auth-token-code-verifier`,
-          `supabase.auth.token`,
-          'supabase.auth.refreshToken',
-          'supabase.auth.expiresAt'
-        ];
-        
-        // Clear from localStorage
-        keysToCheck.forEach(key => {
-          localStorage.removeItem(key);
-        });
-        
-        // Clear all keys that start with sb- from both storages
-        const allLocalKeys = Object.keys(localStorage);
-        allLocalKeys.forEach(key => {
-          if (key.startsWith('sb-') || key.includes('supabase')) {
-            localStorage.removeItem(key);
-          }
-        });
-        
-        const allSessionKeys = Object.keys(sessionStorage);
-        allSessionKeys.forEach(key => {
-          if (key.startsWith('sb-') || key.includes('supabase')) {
-            sessionStorage.removeItem(key);
-          }
-        });
-      }
-      
       // Sign out from Supabase
       if (supabase) {
         await supabase.auth.signOut({ scope: 'local' });
+      }
+      
+      // Clear localStorage keys
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      if (supabaseUrl) {
+        try {
+          const urlObj = new URL(supabaseUrl);
+          const projectRef = urlObj.hostname.split('.')[0];
+          
+          // Clear specific Supabase keys
+          const keysToCheck = [
+            `sb-${projectRef}-auth-token`,
+            `sb-${projectRef}-auth-token-code-verifier`,
+          ];
+          
+          keysToCheck.forEach(key => {
+            if (localStorage.getItem(key)) {
+              localStorage.removeItem(key);
+              console.log('🔄 Cleared localStorage key:', key);
+            }
+          });
+        } catch (urlError) {
+          console.warn('🔄 Could not parse Supabase URL for key clearing:', urlError);
+        }
       }
       
       // Reset current user state

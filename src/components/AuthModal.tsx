@@ -48,11 +48,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
     setLoading(true);
 
     console.log('🔄 Form submission started for mode:', mode);
-    console.log('🔄 Form data:', { 
-      email: formData.email, 
-      hasPassword: !!formData.password,
-      name: formData.name 
-    });
 
     try {
       switch (mode) {
@@ -67,18 +62,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
           if (formData.password.length < 6) {
             throw new Error('Password must be at least 6 characters');
           }
-          console.log('🔄 Calling authService.signUp...');
           await authService.signUp(formData.email, formData.password, formData.name);
-          console.log('✅ Sign up completed successfully');
           break;
 
         case 'signin':
           if (!formData.email.trim() || !formData.password) {
             throw new Error('Please enter email and password');
           }
-          console.log('🔄 Calling authService.signIn for:', formData.email);
           await authService.signIn(formData.email, formData.password);
-          console.log('✅ Sign in completed successfully');
           break;
 
         case 'upgrade':
@@ -91,23 +82,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
           if (formData.password.length < 6) {
             throw new Error('Password must be at least 6 characters');
           }
-          console.log('🔄 Calling authService.upgradeToMember...');
           await authService.upgradeToMember(formData.email, formData.password);
-          console.log('✅ Upgrade completed successfully');
           break;
 
         case 'forgot-password':
           if (!formData.email.trim()) {
             throw new Error('Please enter your email address');
           }
-          console.log('🔄 Calling authService.resetPassword...');
           await authService.resetPassword(formData.email);
           setSuccessMessage('Password reset email sent! Please check your inbox and follow the instructions to reset your password.');
-          console.log('✅ Password reset email sent');
           return; // Don't call onSuccess for password reset
       }
 
-      console.log('✅ Authentication successful, calling onSuccess');
       onSuccess?.();
       handleClose();
     } catch (err) {
@@ -116,7 +102,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
       
       if (err instanceof Error) {
         errorMessage = err.message;
-        console.error('🚨 Processed error message:', errorMessage);
         
         // Provide more user-friendly error messages
         if (errorMessage.includes('Failed to fetch')) {
