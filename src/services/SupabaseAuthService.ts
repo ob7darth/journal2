@@ -55,6 +55,8 @@ class SupabaseAuthService {
 
   private async setUserFromSession(user: User) {
     try {
+      console.log('🔄 Setting user from session:', user.id);
+
       // Get profile (should be created by trigger)
       const { data: profile, error } = await supabase!
         .from('profiles')
@@ -63,14 +65,49 @@ class SupabaseAuthService {
         .single();
 
       if (error) {
-        console.error('Error fetching profile:', error);
+        console.error('🚨 Error fetching profile:', error);
+        
+        // If profile doesn't exist, try to create it
+        if (error.code === 'PGRST116') {
+          console.log('📝 Profile not found, creating new profile...');
+          const { data: newProfile, error: createError } = await supabase!
+            .from('profiles')
+            .insert({
+              id: user.id,
+              email: user.email,
+              full_name: user.user_metadata?.full_name || 'User',
+              is_guest: false
+            })
+            .select()
+            .single();
+
+          if (createError) {
+            console.error('🚨 Error creating profile:', createError);
+            return;
+          }
+
+          console.log('✅ Profile created successfully');
+          this.currentUser = {
+            id: newProfile.id,
+            email: newProfile.email || undefined,
+            name: newProfile.full_name,
+            isGuest: newProfile.is_guest,
+            createdAt: newProfile.created_at,
+            lastLogin: new Date().toISOString()
+          };
+
+          this.notifyAuthCallbacks();
+          return;
+        }
         return;
       }
 
       if (!profile) {
-        console.error('No profile found for user');
+        console.error('🚨 No profile found for user');
         return;
       }
+
+      console.log('✅ Profile loaded successfully:', profile);
 
       this.currentUser = {
         id: profile.id,
@@ -83,7 +120,7 @@ class SupabaseAuthService {
 
       this.notifyAuthCallbacks();
     } catch (error) {
-      console.error('Error setting user from session:', error);
+      console.error('🚨 Error setting user from session:', error);
     }
   }
 
@@ -91,6 +128,8 @@ class SupabaseAuthService {
     if (!canUseSupabase() || !supabase) {
       throw new Error('Supabase is not configured. Please check your environment variables.');
     }
+
+    console.log('🔄 Starting sign up process for:', email);
 
     const { data, error } = await supabase!.auth.signUp({
       email,
@@ -103,12 +142,15 @@ class SupabaseAuthService {
     });
 
     if (error) {
+      console.error('🚨 Sign up error:', error);
       throw new Error(error.message);
     }
 
     if (!data.user) {
       throw new Error('Failed to create user');
     }
+
+    console.log('✅ User created successfully:', data.user.id);
 
     // Check if email confirmation is required
     if (!data.session && data.user && !data.user.email_confirmed_at) {
@@ -118,12 +160,14 @@ class SupabaseAuthService {
     // User will be set via the auth state change listener
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
+        console.error('⏰ Timeout waiting for user creation');
         reject(new Error('Timeout waiting for user creation'));
       }, 10000);
 
       const checkUser = () => {
         if (this.currentUser) {
           clearTimeout(timeout);
+          console.log('✅ User set successfully:', this.currentUser);
           resolve(this.currentUser);
         } else {
           setTimeout(checkUser, 100);
@@ -138,12 +182,15 @@ class SupabaseAuthService {
       throw new Error('Supabase is not configured. Please check your environment variables.');
     }
 
+    console.log('🔄 Starting sign in process for:', email);
+
     const { data, error } = await supabase!.auth.signInWithPassword({
       email,
       password
     });
 
     if (error) {
+      console.error('🚨 Sign in error:', error);
       throw new Error(error.message);
     }
 
@@ -151,15 +198,19 @@ class SupabaseAuthService {
       throw new Error('Failed to sign in');
     }
 
+    console.log('✅ Sign in successful:', data.user.id);
+
     // User will be set via the auth state change listener
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
+        console.error('⏰ Timeout waiting for sign in');
         reject(new Error('Timeout waiting for sign in'));
       }, 10000);
 
       const checkUser = () => {
         if (this.currentUser) {
           clearTimeout(timeout);
+          console.log('✅ User authenticated successfully:', this.currentUser);
           resolve(this.currentUser);
         } else {
           setTimeout(checkUser, 100);
