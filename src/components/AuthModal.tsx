@@ -50,11 +50,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
           if (formData.password !== formData.confirmPassword) {
             throw new Error('Passwords do not match');
           }
-            throw new Error('Please fill in all fields');
-          }
-          if (formData.password !== formData.confirmPassword) {
-            throw new Error('Passwords do not match');
-          }
           if (formData.password.length < 6) {
             throw new Error('Password must be at least 6 characters');
           }
@@ -66,18 +61,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
             throw new Error('Please enter email and password');
           }
           console.log('🔄 Attempting sign in for:', formData.email);
-            throw new Error('Please enter email and password');
-          }
           await authService.signIn(formData.email, formData.password);
           break;
 
         case 'upgrade':
           if (!formData.email.trim() || !formData.password) {
-            throw new Error('Please enter email and password');
-          }
-          if (formData.password !== formData.confirmPassword) {
-            throw new Error('Passwords do not match');
-          }
             throw new Error('Please enter email and password');
           }
           if (formData.password !== formData.confirmPassword) {
@@ -91,8 +79,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
 
         case 'forgot-password':
           if (!formData.email.trim()) {
-            throw new Error('Please enter your email address');
-          }
             throw new Error('Please enter your email address');
           }
           await authService.resetPassword(formData.email);
@@ -118,7 +104,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
           errorMessage = 'Unable to connect to the server. Please check your internet connection and try again.';
         } else if (errorMessage.includes('Network request failed')) {
           errorMessage = 'Network error. Please check your internet connection and try again.';
-        if (errorMessage.includes('Invalid login credentials')) {
+        } else if (errorMessage.includes('Invalid login credentials')) {
           errorMessage = 'Invalid email or password. If you haven\'t created an account yet, please sign up first.';
         } else if (errorMessage.includes('Email not confirmed')) {
           errorMessage = 'Please check your email and click the confirmation link before signing in.';
