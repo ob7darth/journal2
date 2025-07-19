@@ -14,6 +14,7 @@ import ResourcesPanel from './components/ResourcesPanel';
 import SplashScreen from './components/SplashScreen';
 import AuthModal from './components/AuthModal';
 import InstallPrompt from './components/InstallPrompt';
+import UserProfile from './components/UserProfile';
 import { generateFullYearPlan } from './data/readingPlan';
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
   const [activeView, setActiveView] = useState<'reading' | 'soap' | 'progress' | 'resources'>('reading');
   const [showShareModal, setShowShareModal] = useState(false);
   const [entryToShare, setEntryToShare] = useState<SOAPEntry | null>(null);
+  const [showUserProfile, setShowUserProfile] = useState(false);
 
   // Initialize auth service
   useEffect(() => {
@@ -141,7 +143,7 @@ function App() {
             currentDay={currentDay}
             totalDays={readingPlan.days.length}
             user={user}
-            onUserClick={() => {}}
+            onUserClick={() => setShowUserProfile(true)}
           />
           
           <main className="container mx-auto px-4 py-6 max-w-4xl">
@@ -291,6 +293,14 @@ function App() {
             setShowShareModal(false);
             setEntryToShare(null);
           }}
+        />
+      )}
+
+      {/* User Profile Modal */}
+      {showUserProfile && user && (
+        <UserProfile
+          user={user}
+          onClose={() => setShowUserProfile(false)}
         />
       )}
     </div>
