@@ -41,7 +41,63 @@ class SupabaseSOAPService {
     // For authenticated users, save to Supabase
     try {
       console.log('🔄 Saving SOAP entry to Supabase for day:', day, 'user:', user.id);
-      const { error } = await supabase!
+      
+      // First check if entry exists
+      const { data: existingEntry } = await supabase!
+        .from('soap_entries')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('day', day)
+        .single();
+      
+      let result;
+      if (existingEntry) {
+        // Update existing entry
+        result = await supabase!
+          .from('soap_entries')
+          .update({
+            title: entry.title,
+            scripture: entry.scripture,
+            observation: entry.observation,
+            application: entry.application,
+            prayer: entry.prayer,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id)
+          .eq('day', day);
+      } else {
+        // Insert new entry
+        result = await supabase!
+          .from('soap_entries')
+          .insert({
+            user_id: user.id,
+            day,
+            title: entry.title,
+            scripture: entry.scripture,
+            observation: entry.observation,
+            application: entry.application,
+            prayer: entry.prayer
+          });
+      }
+      
+      if (result.error) {
+        console.error('🚨 Supabase save error:', result.error);
+        throw new Error(`Failed to save SOAP entry: ${result.error.message}`);
+      }
+      console.log('✅ SOAP entry saved to Supabase successfully');
+    } catch (error) {
+      console.error('Supabase save error:', error);
+      // Fallback to localStorage if Supabase fails
+      console.log('🔄 Falling back to localStorage due to Supabase error');
+      const entries = this.getLocalEntries();
+      entries[day] = {
+        day,
+        ...entry
+      };
+      localStorage.setItem('soap-entries', JSON.stringify(entries));
+      console.warn('⚠️ Saved to localStorage as fallback due to Supabase error');
+    }
+  }
         .from('soap_entries')
         .upsert({
           user_id: user.id,
