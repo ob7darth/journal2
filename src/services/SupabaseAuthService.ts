@@ -133,7 +133,7 @@ class SupabaseAuthService {
 
     // Add connection test
     try {
-      const { data: testData } = await supabase!.from('profiles').select('count').limit(1);
+      const { data: _testData } = await supabase!.from('profiles').select('count').limit(1);
       console.log('✅ Supabase connection test passed');
     } catch (testError) {
       console.error('🚨 Supabase connection test failed:', testError);
@@ -195,7 +195,7 @@ class SupabaseAuthService {
 
     // Add connection test
     try {
-      const { data: testData } = await supabase!.from('profiles').select('count').limit(1);
+      const { data: _testData } = await supabase!.from('profiles').select('count').limit(1);
       console.log('✅ Supabase connection test passed');
     } catch (testError) {
       console.error('🚨 Supabase connection test failed:', testError);
