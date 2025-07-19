@@ -162,7 +162,7 @@ class SupabaseAuthService {
       const timeout = setTimeout(() => {
         console.error('⏰ Timeout waiting for user creation');
         reject(new Error('Timeout waiting for user creation'));
-      }, 10000);
+      }, 30000); // Increased to 30 seconds
 
       const checkUser = () => {
         if (this.currentUser) {
@@ -205,7 +205,7 @@ class SupabaseAuthService {
       const timeout = setTimeout(() => {
         console.error('⏰ Timeout waiting for sign in');
         reject(new Error('Timeout waiting for sign in'));
-      }, 10000);
+      }, 30000); // Increased to 30 seconds
 
       const checkUser = () => {
         if (this.currentUser) {
@@ -276,7 +276,7 @@ class SupabaseAuthService {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new Error('Timeout waiting for account upgrade'));
-      }, 10000);
+      }, 30000); // Increased to 30 seconds
 
       const checkUser = () => {
         if (this.currentUser && !this.currentUser.isGuest) {
@@ -354,12 +354,27 @@ class SupabaseAuthService {
       throw new Error('Password reset is only available for member accounts. Please create a member account to use this feature.');
     }
 
+    // Add loading state and better error handling
+    try {
+      console.log('🔄 Sending password reset email to:', email);
+      
+      const { error } = await supabase!.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      throw new Error('Password reset is only available for member accounts. Please create a member account to use this feature.');
+    }
+
     const { error } = await supabase!.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`
     });
 
     if (error) {
       throw new Error(error.message);
+      });
+
+      if (error) {
+        console.error('🚨 Password reset error:', error);
+        throw new Error(error.message);
+      }
     }
   }
 

@@ -37,6 +37,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
     e.preventDefault();
     setError('');
     setSuccessMessage('');
+    setSuccessMessage('');
     setLoading(true);
 
     try {
@@ -44,6 +45,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
 
         case 'signup':
           if (!formData.name.trim() || !formData.email.trim() || !formData.password) {
+            throw new Error('Please fill in all fields');
+          }
+          if (formData.password !== formData.confirmPassword) {
+            throw new Error('Passwords do not match');
+          }
             throw new Error('Please fill in all fields');
           }
           if (formData.password !== formData.confirmPassword) {
@@ -59,11 +65,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
           if (!formData.email.trim() || !formData.password) {
             throw new Error('Please enter email and password');
           }
+          console.log('🔄 Attempting sign in for:', formData.email);
+            throw new Error('Please enter email and password');
+          }
           await authService.signIn(formData.email, formData.password);
           break;
 
         case 'upgrade':
           if (!formData.email.trim() || !formData.password) {
+            throw new Error('Please enter email and password');
+          }
+          if (formData.password !== formData.confirmPassword) {
+            throw new Error('Passwords do not match');
+          }
             throw new Error('Please enter email and password');
           }
           if (formData.password !== formData.confirmPassword) {
@@ -79,6 +93,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
           if (!formData.email.trim()) {
             throw new Error('Please enter your email address');
           }
+            throw new Error('Please enter your email address');
+          }
           await authService.resetPassword(formData.email);
           setSuccessMessage('Password reset email sent! Please check your inbox and follow the instructions to reset your password.');
           return; // Don't call onSuccess for password reset
@@ -86,6 +102,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
 
       onSuccess?.();
       handleClose();
+      console.log('✅ Authentication successful');
     } catch (err) {
       console.error('🚨 Auth Error Details:', err);
       let errorMessage = 'An error occurred';
@@ -95,6 +112,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
         console.error('🚨 Error message:', errorMessage);
         
         // Provide more user-friendly error messages
+        if (errorMessage.includes('Timeout waiting')) {
+          errorMessage = 'The login is taking longer than expected. Please check your internet connection and try again.';
+        } else if (errorMessage.includes('Failed to fetch')) {
+          errorMessage = 'Unable to connect to the server. Please check your internet connection and try again.';
+        } else if (errorMessage.includes('Network request failed')) {
+          errorMessage = 'Network error. Please check your internet connection and try again.';
         if (errorMessage.includes('Invalid login credentials')) {
           errorMessage = 'Invalid email or password. If you haven\'t created an account yet, please sign up first.';
         } else if (errorMessage.includes('Email not confirmed')) {
