@@ -28,7 +28,21 @@ export const supabase = isSupabaseConfigured
       auth: {
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: true
+        detectSessionInUrl: true,
+        flowType: 'pkce'
+      },
+      global: {
+        headers: {
+          'x-client-info': 'life-journal-app'
+        }
+      },
+      db: {
+        schema: 'public'
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 2
+        }
       }
     })
   : null;

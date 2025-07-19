@@ -131,6 +131,15 @@ class SupabaseAuthService {
 
     console.log('🔄 Starting sign up process for:', email);
 
+    // Add connection test
+    try {
+      const { data: testData } = await supabase!.from('profiles').select('count').limit(1);
+      console.log('✅ Supabase connection test passed');
+    } catch (testError) {
+      console.error('🚨 Supabase connection test failed:', testError);
+      throw new Error('Unable to connect to the server. Please check your internet connection and try again.');
+    }
+
     const { data, error } = await supabase!.auth.signUp({
       email,
       password,
@@ -161,8 +170,8 @@ class SupabaseAuthService {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         console.error('⏰ Timeout waiting for user creation');
-        reject(new Error('Timeout waiting for user creation'));
-      }, 30000); // Increased to 30 seconds
+        reject(new Error('Login is taking longer than expected. Please try refreshing the page and signing in again.'));
+      }, 45000); // Increased to 45 seconds
 
       const checkUser = () => {
         if (this.currentUser) {
@@ -170,7 +179,7 @@ class SupabaseAuthService {
           console.log('✅ User set successfully:', this.currentUser);
           resolve(this.currentUser);
         } else {
-          setTimeout(checkUser, 100);
+          setTimeout(checkUser, 200);
         }
       };
       checkUser();
@@ -184,6 +193,15 @@ class SupabaseAuthService {
 
     console.log('🔄 Starting sign in process for:', email);
 
+    // Add connection test
+    try {
+      const { data: testData } = await supabase!.from('profiles').select('count').limit(1);
+      console.log('✅ Supabase connection test passed');
+    } catch (testError) {
+      console.error('🚨 Supabase connection test failed:', testError);
+      throw new Error('Unable to connect to the server. Please check your internet connection and try again.');
+    }
+
     const { data, error } = await supabase!.auth.signInWithPassword({
       email,
       password
@@ -191,7 +209,16 @@ class SupabaseAuthService {
 
     if (error) {
       console.error('🚨 Sign in error:', error);
-      throw new Error(error.message);
+      // Provide more user-friendly error messages
+      if (error.message.includes('Invalid login credentials')) {
+        throw new Error('Invalid email or password. Please check your credentials and try again.');
+      } else if (error.message.includes('Email not confirmed')) {
+        throw new Error('Please check your email and click the confirmation link before signing in.');
+      } else if (error.message.includes('Too many requests')) {
+        throw new Error('Too many login attempts. Please wait a few minutes before trying again.');
+      } else {
+        throw new Error(`Login failed: ${error.message}`);
+      }
     }
 
     if (!data.user) {
@@ -204,8 +231,8 @@ class SupabaseAuthService {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         console.error('⏰ Timeout waiting for sign in');
-        reject(new Error('Timeout waiting for sign in'));
-      }, 30000); // Increased to 30 seconds
+        reject(new Error('Login is taking longer than expected. Please try refreshing the page and trying again.'));
+      }, 45000); // Increased to 45 seconds
 
       const checkUser = () => {
         if (this.currentUser) {
@@ -213,7 +240,7 @@ class SupabaseAuthService {
           console.log('✅ User authenticated successfully:', this.currentUser);
           resolve(this.currentUser);
         } else {
-          setTimeout(checkUser, 100);
+          setTimeout(checkUser, 200);
         }
       };
       checkUser();

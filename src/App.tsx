@@ -61,10 +61,15 @@ function App() {
 
   // Auto-show auth modal if not authenticated
   useEffect(() => {
-    if (!user && !showSplash) {
+    // Add a small delay to ensure auth service is fully initialized
+    const timer = setTimeout(() => {
+      if (!user && !showSplash) {
       setShowAuthModal(true);
       setAuthMode('signin');
     }
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, [user, showSplash]);
 
   // Load user-specific entries
