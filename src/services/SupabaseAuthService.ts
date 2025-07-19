@@ -371,20 +371,6 @@ class SupabaseAuthService {
       throw error;
     }
   }
-    const { error } = await supabase!.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`
-    });
-
-    if (error) {
-      throw new Error(error.message);
-      });
-
-      if (error) {
-        console.error('🚨 Password reset error:', error);
-        throw new Error(error.message);
-      }
-    }
-  }
 
   isAuthenticated(): boolean {
     return this.currentUser !== null;
