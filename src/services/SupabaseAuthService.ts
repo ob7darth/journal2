@@ -360,9 +360,17 @@ class SupabaseAuthService {
       
       const { error } = await supabase!.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`
-      throw new Error('Password reset is only available for member accounts. Please create a member account to use this feature.');
-    }
+      });
 
+      if (error) {
+        console.error('🚨 Password reset error:', error);
+        throw new Error(error.message);
+      }
+    } catch (error) {
+      console.error('🚨 Password reset failed:', error);
+      throw error;
+    }
+  }
     const { error } = await supabase!.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`
     });
