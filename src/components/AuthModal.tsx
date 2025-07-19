@@ -285,7 +285,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
             )}
 
             {/* Confirm Password field */}
-            {mode === 'signup' && (
+            {(mode === 'signup' || mode === 'upgrade') && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Confirm Password
