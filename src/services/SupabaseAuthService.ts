@@ -145,17 +145,33 @@ class SupabaseAuthService {
 
       // Get profile (should be created by trigger)
       console.log('🔄 Fetching profile for user:', user.id);
-      const { data: profile, error } = await supabase!
+      
+      // Add timeout to profile fetching
+      const profilePromise = supabase!
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
+      
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 10000); // 10 second timeout
+      });
+      
+      let profile, error;
+      try {
+        const result = await Promise.race([profilePromise, timeoutPromise]);
+        profile = result.data;
+        error = result.error;
+      } catch (timeoutError) {
+        console.warn('🔄 Profile fetch timed out, creating profile manually');
+        error = { code: 'TIMEOUT', message: 'Profile fetch timeout' };
+      }
 
       if (error) {
         console.error('🚨 Error fetching profile:', error.message, error.code, error.details);
         
         // If profile doesn't exist, try to create it
-        if (error.code === 'PGRST116') {
+        if (error.code === 'PGRST116' || error.code === 'TIMEOUT') {
           console.log('📝 Profile not found, creating new profile...');
           const profileData = {
             id: user.id,
@@ -165,38 +181,57 @@ class SupabaseAuthService {
           };
           console.log('📝 Creating profile with data:', profileData);
           
-          const { data: newProfile, error: createError } = await supabase!
-            .from('profiles')
-            .insert(profileData)
-            .select()
-            .single();
+          try {
+            // Add timeout to profile creation too
+            const createPromise = supabase!
+              .from('profiles')
+              .insert(profileData)
+              .select()
+              .single();
+            
+            const createTimeoutPromise = new Promise((_, reject) => {
+              setTimeout(() => reject(new Error('Profile creation timeout')), 5000);
+            });
+            
+            const createResult = await Promise.race([createPromise, createTimeoutPromise]);
+            const newProfile = createResult.data;
+            const createError = createResult.error;
 
-          if (createError) {
-            console.error('🚨 Error creating profile:', createError.message, createError.code, createError.details);
+            if (createError) {
+              console.error('🚨 Error creating profile:', createError.message, createError.code, createError.details);
+              // Fallback: create a temporary profile from user data
+              this.createFallbackProfile(user);
+              return;
+            }
+
+            console.log('✅ Profile created successfully');
+            this.currentUser = {
+              id: newProfile.id,
+              email: newProfile.email || undefined,
+              name: newProfile.full_name,
+              isGuest: newProfile.is_guest,
+              createdAt: newProfile.created_at,
+              lastLogin: new Date().toISOString()
+            };
+
+            this.notifyAuthCallbacks();
+            return;
+          } catch (createTimeoutError) {
+            console.warn('🔄 Profile creation timed out, using fallback');
+            this.createFallbackProfile(user);
             return;
           }
-
-          console.log('✅ Profile created successfully');
-          this.currentUser = {
-            id: newProfile.id,
-            email: newProfile.email || undefined,
-            name: newProfile.full_name,
-            isGuest: newProfile.is_guest,
-            createdAt: newProfile.created_at,
-            lastLogin: new Date().toISOString()
-          };
-
-          this.notifyAuthCallbacks();
-          return;
         }
         
         // For other errors, log and return
         console.error('🚨 Profile fetch failed with non-recoverable error');
+        this.createFallbackProfile(user);
         return;
       }
 
       if (!profile) {
         console.error('🚨 No profile found for user');
+        this.createFallbackProfile(user);
         return;
       }
 
@@ -217,9 +252,25 @@ class SupabaseAuthService {
       if (error instanceof Error) {
         console.error('🚨 Error details:', error.message, error.stack);
       }
+      // Fallback: create a temporary profile from user data
+      this.createFallbackProfile(user);
     }
   }
 
+  private createFallbackProfile(user: User) {
+    console.log('🔄 Creating fallback profile for user:', user.id);
+    this.currentUser = {
+      id: user.id,
+      email: user.email || undefined,
+      name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+      isGuest: false,
+      createdAt: new Date().toISOString(),
+      lastLogin: new Date().toISOString()
+    };
+    
+    console.log('✅ Fallback profile created:', this.currentUser.name);
+    this.notifyAuthCallbacks();
+  }
   async signUp(email: string, password: string, fullName: string): Promise<AuthUser> {
     if (!canUseSupabase() || !supabase) {
       throw new Error('Member accounts are temporarily unavailable. Please use guest mode for now.');
