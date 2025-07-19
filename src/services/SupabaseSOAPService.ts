@@ -98,35 +98,6 @@ class SupabaseSOAPService {
       console.warn('⚠️ Saved to localStorage as fallback due to Supabase error');
     }
   }
-        .from('soap_entries')
-        .upsert({
-          user_id: user.id,
-          day,
-          title: entry.title,
-          scripture: entry.scripture,
-          observation: entry.observation,
-          application: entry.application,
-          prayer: entry.prayer
-        });
-
-      if (error) {
-        console.error('🚨 Supabase save error:', error);
-        throw new Error(`Failed to save SOAP entry: ${error.message}`);
-      }
-      console.log('✅ SOAP entry saved to Supabase successfully');
-    } catch (error) {
-      console.error('Supabase save error:', error);
-      // Fallback to localStorage if Supabase fails
-      console.log('🔄 Falling back to localStorage due to Supabase error');
-      const entries = this.getLocalEntries();
-      entries[day] = {
-        day,
-        ...entry
-      };
-      localStorage.setItem('soap-entries', JSON.stringify(entries));
-      console.warn('⚠️ Saved to localStorage as fallback due to Supabase error');
-    }
-  }
 
   async getEntry(day: number): Promise<SOAPEntry | null> {
     const user = supabaseAuthService.getCurrentUser();
