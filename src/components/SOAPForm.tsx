@@ -69,6 +69,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
       return;
     }
 
+    console.log('🔄 SOAPForm handleSave called');
     setIsSaving(true);
     
     try {
@@ -95,6 +96,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
       // Simulate save delay for better UX
       await new Promise(resolve => setTimeout(resolve, 500));
       
+      console.log('🔄 Calling onSave callback...');
       onSave(day, entry);
       
       console.log('✅ SOAP entry save completed');
@@ -106,7 +108,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
         alert('Your progress has been saved! You can continue working on this entry later.');
       }
     } catch (error) {
-      console.error('Error saving SOAP entry:', error);
+      console.error('🚨 Error in SOAPForm handleSave:', error);
       alert('Failed to save entry. Please try again.');
     } finally {
       setIsSaving(false);

@@ -5,22 +5,34 @@ import type { SOAPEntry } from '../types/SOAPEntry';
 class SupabaseSOAPService {
   async saveEntry(day: number, entry: Omit<SOAPEntry, 'day'>): Promise<void> {
     const user = supabaseAuthService.getCurrentUser();
+    console.log('🔄 SupabaseSOAPService.saveEntry called:', { day, user: user ? { id: user.id, isGuest: user.isGuest } : null });
+    
     if (!user) {
+      console.error('🚨 No user found in saveEntry');
       throw new Error('User not authenticated');
     }
 
     if (user.isGuest || !canUseSupabase()) {
+      console.log('🔄 Saving to localStorage (guest user or no Supabase)');
       // For guest users, save to localStorage
       const entries = this.getLocalEntries();
+      console.log('🔄 Current localStorage entries:', Object.keys(entries));
       entries[day] = {
         day,
         ...entry
       };
       try {
         localStorage.setItem('soap-entries', JSON.stringify(entries));
-        console.log('✅ SOAP entry saved to localStorage for day:', day);
+        console.log('✅ SOAP entry saved to localStorage for day:', day, 'Total entries:', Object.keys(entries).length);
+        
+        // Verify the save worked
+        const verification = localStorage.getItem('soap-entries');
+        if (verification) {
+          const parsed = JSON.parse(verification);
+          console.log('✅ Verification: Entry exists in localStorage:', !!parsed[day]);
+        }
       } catch (error) {
-        console.error('Failed to save to localStorage:', error);
+        console.error('🚨 Failed to save to localStorage:', error);
         throw new Error('Failed to save entry locally');
       }
       return;
@@ -49,6 +61,7 @@ class SupabaseSOAPService {
     } catch (error) {
       console.error('Supabase save error:', error);
       // Fallback to localStorage if Supabase fails
+      console.log('🔄 Falling back to localStorage due to Supabase error');
       const entries = this.getLocalEntries();
       entries[day] = {
         day,
@@ -61,18 +74,25 @@ class SupabaseSOAPService {
 
   async getEntry(day: number): Promise<SOAPEntry | null> {
     const user = supabaseAuthService.getCurrentUser();
+    console.log('🔄 SupabaseSOAPService.getEntry called for day:', day, 'user:', user ? { id: user.id, isGuest: user.isGuest } : null);
+    
     if (!user) {
+      console.log('🔄 No user, returning null');
       return null;
     }
 
     if (user.isGuest || !canUseSupabase()) {
+      console.log('🔄 Getting from localStorage (guest user or no Supabase)');
       // For guest users, get from localStorage
       const entries = this.getLocalEntries();
-      return entries[day] || null;
+      const entry = entries[day] || null;
+      console.log('🔄 Retrieved from localStorage:', entry ? 'found' : 'not found');
+      return entry;
     }
 
     // For authenticated users, get from Supabase
     try {
+      console.log('🔄 Getting from Supabase for user:', user.id);
       const { data, error } = await supabase!
         .from('soap_entries')
         .select('*')
@@ -86,9 +106,11 @@ class SupabaseSOAPService {
       }
 
       if (!data) {
+        console.log('🔄 No data found in Supabase for day:', day);
         return null;
       }
 
+      console.log('✅ Retrieved from Supabase for day:', day);
       return {
         day: data.day,
         title: data.title || '',
@@ -102,6 +124,7 @@ class SupabaseSOAPService {
     } catch (error) {
       console.error('Supabase fetch error:', error);
       // Fallback to localStorage
+      console.log('🔄 Falling back to localStorage due to Supabase fetch error');
       const entries = this.getLocalEntries();
       return entries[day] || null;
     }
@@ -109,17 +132,24 @@ class SupabaseSOAPService {
 
   async getAllEntries(): Promise<Record<number, SOAPEntry>> {
     const user = supabaseAuthService.getCurrentUser();
+    console.log('🔄 SupabaseSOAPService.getAllEntries called, user:', user ? { id: user.id, isGuest: user.isGuest } : null);
+    
     if (!user) {
+      console.log('🔄 No user, returning empty object');
       return {};
     }
 
     if (user.isGuest || !canUseSupabase()) {
+      console.log('🔄 Getting all entries from localStorage');
       // For guest users, get from localStorage
-      return this.getLocalEntries();
+      const entries = this.getLocalEntries();
+      console.log('🔄 Retrieved', Object.keys(entries).length, 'entries from localStorage');
+      return entries;
     }
 
     // For authenticated users, get from Supabase
     try {
+      console.log('🔄 Getting all entries from Supabase for user:', user.id);
       const { data, error } = await supabase!
         .from('soap_entries')
         .select('*')
@@ -145,24 +175,34 @@ class SupabaseSOAPService {
         };
       });
 
+      console.log('✅ Retrieved', Object.keys(entries).length, 'entries from Supabase');
       return entries;
     } catch (error) {
       console.error('Supabase fetch error:', error);
       // Fallback to localStorage
+      console.log('🔄 Falling back to localStorage due to Supabase error');
       return this.getLocalEntries();
     }
   }
 
   private getLocalEntries(): Record<number, SOAPEntry> {
+    console.log('🔄 Getting entries from localStorage');
     const stored = localStorage.getItem('soap-entries');
+    console.log('🔄 localStorage raw data:', stored ? 'exists' : 'null');
+    
     if (!stored) {
+      console.log('🔄 No localStorage data found');
       return {};
     }
 
     try {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      console.log('🔄 Parsed localStorage entries:', Object.keys(parsed));
+      return parsed;
     } catch (error) {
       console.error('Error parsing local SOAP entries:', error);
+      // Clear corrupted data
+      localStorage.removeItem('soap-entries');
       return {};
     }
   }

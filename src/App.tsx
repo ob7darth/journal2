@@ -90,16 +90,32 @@ function App() {
   // Save entries with user-specific storage
   const saveSOAPEntry = (day: number, entry: SOAPEntry) => {
     console.log('🔄 App.tsx saveSOAPEntry called for day:', day);
+    console.log('🔄 Entry data:', {
+      title: entry.title ? 'has title' : 'no title',
+      scripture: entry.scripture ? 'has scripture' : 'no scripture',
+      observation: entry.observation ? 'has observation' : 'no observation',
+      application: entry.application ? 'has application' : 'no application',
+      prayer: entry.prayer ? 'has prayer' : 'no prayer'
+    });
+    
     supabaseSOAPService.saveEntry(day, entry)
       .then(() => {
+        console.log('🔄 Save successful, updating state...');
         const updated = { ...soapEntries, [day]: entry };
         setSoapEntries(updated);
         console.log('✅ SOAP entries state updated in App.tsx');
+        console.log('🔄 New state has', Object.keys(updated).length, 'entries');
+        
+        // Verify the entry is in state
+        if (updated[day]) {
+          console.log('✅ Entry confirmed in state for day:', day);
+        } else {
+          console.error('🚨 Entry NOT found in state after update for day:', day);
+        }
       })
       .catch(error => {
-        console.error('Error saving SOAP entry:', error);
+        console.error('🚨 Error saving SOAP entry in App.tsx:', error);
         alert('Failed to save your entry. Please try again.');
-        // Error handling is now done in SOAPForm component
       });
   };
 
