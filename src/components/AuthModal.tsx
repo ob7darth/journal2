@@ -98,14 +98,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
         console.error('🚨 Error message:', errorMessage);
         
         // Provide more user-friendly error messages
-        if (errorMessage.includes('Timeout waiting')) {
-          errorMessage = 'Login is taking longer than expected. Please try refreshing the page and signing in again.';
-        } else if (errorMessage.includes('Failed to fetch')) {
+        if (errorMessage.includes('Failed to fetch')) {
           errorMessage = 'Unable to connect to the server. Please check your internet connection and try again.';
         } else if (errorMessage.includes('Network request failed')) {
           errorMessage = 'Network error. Please check your internet connection and try again.';
-        } else if (errorMessage.includes('Unable to connect to the server')) {
-          errorMessage = 'Server connection failed. Please check your internet connection and try again in a few moments.';
         } else if (errorMessage.includes('Invalid login credentials')) {
           errorMessage = 'Invalid email or password. If you haven\'t created an account yet, please sign up first.';
         } else if (errorMessage.includes('Email not confirmed')) {
@@ -118,6 +114,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
           errorMessage = 'Password must be at least 6 characters long.';
         } else if (errorMessage.includes('Too many requests')) {
           errorMessage = 'Too many login attempts. Please wait 5-10 minutes before trying again.';
+        } else if (errorMessage.includes('unable to load user profile')) {
+          errorMessage = 'Login successful but there was an issue loading your profile. Please refresh the page and try again.';
         }
       }
       
