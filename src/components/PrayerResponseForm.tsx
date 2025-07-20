@@ -46,36 +46,41 @@ const PrayerResponseForm: React.FC<PrayerResponseFormProps> = ({
     setError('');
 
     try {
-      if (user.isGuest) {
-        // For guest users, store in localStorage
-        const guestResponses = JSON.parse(localStorage.getItem('guest-prayer-responses') || '[]');
-        const newResponse = {
-          id: Date.now().toString(),
-          prayerRequestId: request.id,
-          responseType,
-          message: message.trim(),
-          userName: user.name,
-          createdAt: new Date().toISOString()
-        };
-        guestResponses.push(newResponse);
-        localStorage.setItem('guest-prayer-responses', JSON.stringify(guestResponses));
-      } else {
-        // For authenticated users, save to Supabase if available
-        if (canUseSupabase() && supabase) {
-          const { error: insertError } = await supabase
-            .from('prayer_responses')
-            .insert({
-              prayer_request_id: request.id,
-              user_id: user.id,
-              response_type: responseType,
-              message: message.trim()
-            });
-
-          if (insertError) {
-            throw insertError;
+      // Always store responses locally for all users
+      const storageKey = user.isGuest ? 'guest-prayer-responses' : `prayer-responses-${user.id}`;
+      const existingResponses = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      
+      const newResponse = {
+        id: Date.now().toString(),
+        prayerRequestId: request.id,
+        responseType,
+        message: message.trim(),
+        userName: user.name,
+        userId: user.id,
+        createdAt: new Date().toISOString()
+      };
+      
+      existingResponses.push(newResponse);
+      localStorage.setItem(storageKey, JSON.stringify(existingResponses));
+      
+      // For authenticated users, also try to save to Supabase (but don't fail if it doesn't work)
+      if (!user.isGuest && canUseSupabase() && supabase) {
+        try {
+          // Only save to Supabase if the request ID looks like a database ID
+          if (request.id.startsWith('db_')) {
+            const actualRequestId = request.id.replace('db_', '');
+            await supabase
+              .from('prayer_responses')
+              .insert({
+                prayer_request_id: actualRequestId,
+                user_id: user.id,
+                response_type: responseType,
+                message: message.trim()
+              });
           }
-        } else {
-          throw new Error('Database not available');
+        } catch (supabaseError) {
+          console.warn('Failed to save to Supabase, but saved locally:', supabaseError);
+          // Don't throw error - local save was successful
         }
       }
 
@@ -83,10 +88,24 @@ const PrayerResponseForm: React.FC<PrayerResponseFormProps> = ({
       onClose();
       
       // Show success message
-      alert('Your response has been sent! Thank you for caring for this person.');
+      const responseTypeText = responseType === 'praying' ? 'prayer' : 
+                              responseType === 'encouragement' ? 'encouragement' : 'testimony';
+      alert(`Your ${responseTypeText} has been sent! Thank you for caring for this person.`);
     } catch (err) {
       console.error('Error submitting prayer response:', err);
-      setError('Failed to submit response. Please try again.');
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to submit response. Please try again.';
+      if (err instanceof Error) {
+        if (err.message.includes('Network')) {
+          errorMessage = 'Network error. Your response has been saved locally.';
+        } else if (err.message.includes('Database not available')) {
+          errorMessage = 'Database temporarily unavailable. Your response has been saved locally.';
+        } else {
+          errorMessage = `Error: ${err.message}`;
+        }
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
