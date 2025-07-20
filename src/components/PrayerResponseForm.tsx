@@ -36,6 +36,7 @@ const PrayerResponseForm: React.FC<PrayerResponseFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+   e.stopPropagation();
     
     if (!user) {
       setError('Please sign in to respond to prayer requests');
