@@ -499,9 +499,25 @@ class SupabaseAuthService {
       this.notifyAuthCallbacks();
     } else {
       // For authenticated users, sign out from Supabase
-      const { error } = await supabase!.auth.signOut();
-      if (error) {
-        console.error('Error signing out:', error);
+      try {
+        const { error } = await supabase!.auth.signOut();
+        if (error) {
+          // Check if the error is due to session not existing on server
+          if (error.message?.includes('session_not_found') || 
+              error.message?.includes('Session from session_id claim in JWT does not exist') ||
+              error.message?.includes('Auth session missing')) {
+            console.log('🔄 Server session not found, performing local sign out');
+            await this.forceClearSessionAndSignOut();
+          } else {
+            console.error('Error signing out:', error);
+            // Still try to clear local session even if server sign out failed
+            await this.forceClearSessionAndSignOut();
+          }
+        }
+      } catch (error) {
+        console.error('Error during sign out:', error);
+        // Fallback to local sign out if server sign out fails completely
+        await this.forceClearSessionAndSignOut();
       }
       // User will be cleared via the auth state change listener
     }
