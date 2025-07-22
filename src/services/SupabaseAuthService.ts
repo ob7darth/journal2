@@ -160,8 +160,8 @@ class SupabaseAuthService {
       let profile, error;
       try {
         const result = await Promise.race([profilePromise, timeoutPromise]);
-        profile = result.data;
-        error = result.error;
+        profile = (result as { data: any; error: any }).data;
+        error = (result as { data: any; error: any }).error;
       } catch (timeoutError) {
         console.warn('🔄 Profile fetch timed out, creating profile manually');
         error = { code: 'TIMEOUT', message: 'Profile fetch timeout' };
@@ -197,8 +197,8 @@ class SupabaseAuthService {
             });
             
             const createResult = await Promise.race([createPromise, createTimeoutPromise]);
-            const newProfile = createResult.data;
-            const createError = createResult.error;
+            const newProfile = (createResult as { data: any; error: any }).data;
+            const createError = (createResult as { data: any; error: any }).error;
 
             if (createError) {
               console.error('🚨 Error creating profile:', createError.message, createError.code, createError.details);
