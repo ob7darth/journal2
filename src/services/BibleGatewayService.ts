@@ -31,12 +31,12 @@ class BibleGatewayService {
     return [];
   }
 
-  getBibleGatewayUrl(book: string, chapter: number, verses: string, version: string = 'ASV'): string {
+  getBibleGatewayUrl(book: string, chapter: number, verses: string, version: string = 'NASB'): string {
     const passage = `${book} ${chapter}:${verses}`;
     return `https://www.biblegateway.com/passage/?search=${encodeURIComponent(passage)}&version=${version}`;
   }
 
-  getBibleGatewaySearchUrl(query: string, version: string = 'ASV'): string {
+  getBibleGatewaySearchUrl(query: string, version: string = 'NASB'): string {
     return `https://www.biblegateway.com/quicksearch/?search=${encodeURIComponent(query)}&version=${version}`;
   }
 }

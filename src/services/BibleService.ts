@@ -76,11 +76,11 @@ class BibleService {
     return this.csvService.isLoaded();
   }
 
-  getBibleGatewayUrl(book: string, chapter: number, verses: string, version: string = 'ASV'): string {
+  getBibleGatewayUrl(book: string, chapter: number, verses: string, version: string = 'NASB'): string {
     return this.gatewayService.getBibleGatewayUrl(book, chapter, verses, version);
   }
 
-  getBibleGatewaySearchUrl(query: string, version: string = 'ASV'): string {
+  getBibleGatewaySearchUrl(query: string, version: string = 'NASB'): string {
     return this.gatewayService.getBibleGatewaySearchUrl(query, version);
   }
 }
