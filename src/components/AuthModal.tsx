@@ -108,6 +108,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
           errorMessage = 'Unable to connect to the server. Please check your internet connection and try again.';
         } else if (errorMessage.includes('Network request failed')) {
           errorMessage = 'Network error. Please check your internet connection and try again.';
+        } else if (errorMessage.includes('Load failed')) {
+          errorMessage = 'Unable to connect to authentication service. Please use guest mode or check your internet connection.';
+        } else if (errorMessage.includes('Unable to connect to authentication service')) {
+          errorMessage = 'Authentication service is temporarily unavailable. Please use guest mode for now.';
         } else if (errorMessage.includes('Invalid login credentials')) {
           errorMessage = 'Invalid email or password. If you haven\'t created an account yet, please sign up first.';
         } else if (errorMessage.includes('Email not confirmed')) {

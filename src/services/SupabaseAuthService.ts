@@ -1,4 +1,5 @@
 import { supabase, canUseSupabase } from '../lib/supabase';
+import { testSupabaseConnectivity } from '../lib/supabase';
 import type { User } from '@supabase/supabase-js';
 
 export interface AuthUser {
@@ -279,6 +280,12 @@ class SupabaseAuthService {
       throw new Error('Member accounts are temporarily unavailable. Please use guest mode for now.');
     }
 
+    // Test connectivity first
+    const isConnected = await testSupabaseConnectivity();
+    if (!isConnected) {
+      throw new Error('Unable to connect to authentication service. Please check your internet connection or use guest mode for now.');
+    }
+
     console.log('🔄 Starting sign up process for:', email, 'with name:', fullName);
     console.log('🔄 Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
     console.log('🔄 Environment check - URL exists:', !!import.meta.env.VITE_SUPABASE_URL);
@@ -296,6 +303,14 @@ class SupabaseAuthService {
 
     if (error) {
       console.error('🚨 Sign up error:', error.message, error.status, error);
+      
+      // Handle CORS and network errors
+      if (error.message?.includes('Failed to fetch') || 
+          error.message?.includes('Load failed') ||
+          error.name === 'AuthRetryableFetchError') {
+        throw new Error('Unable to connect to authentication service. Please check your internet connection or use guest mode for now.');
+      }
+      
       throw new Error(error.message);
     }
 
@@ -326,6 +341,12 @@ class SupabaseAuthService {
       throw new Error('Member accounts are temporarily unavailable. Please use guest mode for now.');
     }
 
+    // Test connectivity first
+    const isConnected = await testSupabaseConnectivity();
+    if (!isConnected) {
+      throw new Error('Unable to connect to authentication service. Please check your internet connection or use guest mode for now.');
+    }
+
     console.log('🔄 Starting sign in process for:', email);
     console.log('🔄 Supabase client status:', !!supabase);
     console.log('🔄 Environment variables check:');
@@ -340,6 +361,13 @@ class SupabaseAuthService {
     if (error) {
       console.error('🚨 Sign in error:', error.message, error.status, error);
       console.error('🚨 Full error object:', JSON.stringify(error, null, 2));
+      
+      // Handle CORS and network errors first
+      if (error.message?.includes('Failed to fetch') || 
+          error.message?.includes('Load failed') ||
+          error.name === 'AuthRetryableFetchError') {
+        throw new Error('Unable to connect to authentication service. Please check your internet connection or use guest mode for now.');
+      }
       
       // Provide more user-friendly error messages
       if (error.message.includes('Invalid login credentials')) {

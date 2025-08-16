@@ -23,6 +23,30 @@ export const isSupabaseConfigured = !!(
   isValidUrl(supabaseUrl)
 );
 
+// Test Supabase connectivity
+let supabaseConnectivity: boolean | null = null;
+
+export const testSupabaseConnectivity = async (): Promise<boolean> => {
+  if (!isSupabaseConfigured || !supabase) {
+    return false;
+  }
+  
+  if (supabaseConnectivity !== null) {
+    return supabaseConnectivity;
+  }
+  
+  try {
+    // Test with a simple health check
+    const { error } = await supabase.from('profiles').select('count').limit(0);
+    supabaseConnectivity = !error || !error.message.includes('Failed to fetch');
+    return supabaseConnectivity;
+  } catch (error) {
+    console.warn('🔄 Supabase connectivity test failed:', error);
+    supabaseConnectivity = false;
+    return false;
+  }
+};
+
 // Create Supabase client only if configured
 export const supabase = isSupabaseConfigured 
   ? createClient(supabaseUrl, supabaseAnonKey, {
