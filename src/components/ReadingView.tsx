@@ -1,7 +1,6 @@
 import React from 'react';
 import { PenTool, Share2, CheckCircle, ExternalLink } from 'lucide-react';
 import { DailyReading } from '../types/ReadingPlan';
-import ScriptureViewer from './ScriptureViewer';
 
 interface ReadingViewProps {
   reading: DailyReading;
