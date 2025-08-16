@@ -117,7 +117,7 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
                 >
-                  Read on Bible Gateway
+                  Read {passage.book} Chapter {passage.chapter} on Bible Gateway
                   <ExternalLink size={16} />
                 </a>
               </div>
@@ -144,7 +144,7 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium text-sm"
                 >
-                  Read full chapter on Bible Gateway
+                  Read {passage.book} Chapter {passage.chapter} on Bible Gateway
                   <ExternalLink size={14} />
                 </a>
               </div>
@@ -160,7 +160,7 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
               >
-                Read on Bible Gateway
+                Read {passage.book} Chapter {passage.chapter} on Bible Gateway
                 <ExternalLink size={16} />
               </a>
             </div>
