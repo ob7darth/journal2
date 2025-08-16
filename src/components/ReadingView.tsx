@@ -28,33 +28,33 @@ const ReadingView: React.FC<ReadingViewProps> = ({
 
       {/* Scripture Passages */}
       <div className="mb-6">
-            <a
-              key={index}
-              href={`https://www.biblegateway.com/passage/?search=${encodeURIComponent(
-                passage.displayText || `${passage.book} ${passage.chapter}${passage.endChapter ? `-${passage.endChapter}` : ''}`
-              )}&version=NASB`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md hover:border-primary-300 transition-all cursor-pointer"
-              title="Read on Bible Gateway"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold text-sm">
-                    {index + 1}
-                  </div>
-                  <span className="font-semibold text-gray-900">
-                    {passage.displayText ? 
-                      passage.displayText.replace(/:\d+(-\d+)?/g, '') : 
-                      `${passage.book} ${passage.chapter}${passage.endChapter ? `-${passage.endChapter}` : ''}`
-                    }
-                  </span>
+        {reading.passages.map((passage, index) => (
+          <a
+            key={index}
+            href={`https://www.biblegateway.com/passage/?search=${encodeURIComponent(
+              passage.displayText || `${passage.book} ${passage.chapter}${passage.endChapter ? `-${passage.endChapter}` : ''}`
+            )}&version=NASB`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md hover:border-primary-300 transition-all cursor-pointer mb-3"
+            title="Read on Bible Gateway"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold text-sm">
+                  {index + 1}
                 </div>
-                <ExternalLink size={16} className="text-primary-600" />
+                <span className="font-semibold text-gray-900">
+                  {passage.displayText ? 
+                    passage.displayText.replace(/:\d+(-\d+)?/g, '') : 
+                    `${passage.book} ${passage.chapter}${passage.endChapter ? `-${passage.endChapter}` : ''}`
+                  }
+                </span>
               </div>
-            </a>
-          ))}
-        </div>
+              <ExternalLink size={16} className="text-primary-600" />
+            </div>
+          </a>
+        ))}
       </div>
 
       {/* SOAP Study Section */}
