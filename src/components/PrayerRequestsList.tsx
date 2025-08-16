@@ -67,7 +67,7 @@ const PrayerRequestsList: React.FC<PrayerRequestsListProps> = ({
             .eq('is_public', true)
             .gte('expires_at', new Date().toISOString())
             .order('created_at', { ascending: false })
-            .limit(Math.max(limit - userRequests.length, 1));
+            .limit(Math.max(limit - communityRequests.length, 1));
 
           if (!error && data && data.length > 0) {
             const formattedRequests: PrayerRequest[] = data.map((req: any) => ({
