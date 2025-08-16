@@ -32,7 +32,7 @@ class BibleGatewayService {
   }
 
   getBibleGatewayUrl(book: string, chapter: number, verses: string, version: string = 'NASB'): string {
-    const passage = `${book} ${chapter}`;
+    const passage = verses ? `${book} ${chapter}:${verses}` : `${book} ${chapter}`;
     return `https://www.biblegateway.com/passage/?search=${encodeURIComponent(passage)}&version=${version}`;
   }
 
