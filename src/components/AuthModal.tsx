@@ -429,7 +429,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
                 className="w-full bg-green-600 text-white py-4 px-6 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 font-semibold text-lg"
               >
                 <User size={20} />
-                Continue as Guest (Recommended)
+                Continue as Guest (will not save entries)
               </button>
               <p className="text-xs text-gray-500 mt-2 text-center">
                 Start using the app immediately. All features available, data stored locally.
