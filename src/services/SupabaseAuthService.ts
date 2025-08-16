@@ -202,10 +202,45 @@ class SupabaseAuthService {
             const createError = (createResult as { data: any; error: any }).error;
 
             if (createError) {
-              console.error('🚨 Error creating profile:', createError.message, createError.code, createError.details);
-              // Fallback: create a temporary profile from user data
-              this.createFallbackProfile(user);
-              return;
+              // Check if it's a duplicate key error (profile already exists due to trigger)
+              if (createError.code === '23505') {
+                console.log('🔄 Profile already exists (created by trigger), fetching existing profile...');
+                try {
+                  const { data: existingProfile, error: fetchError } = await supabase!
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+
+                  if (fetchError || !existingProfile) {
+                    console.error('🚨 Error fetching existing profile after duplicate key error:', fetchError);
+                    this.createFallbackProfile(user);
+                    return;
+                  }
+
+                  console.log('✅ Existing profile fetched successfully');
+                  this.currentUser = {
+                    id: existingProfile.id,
+                    email: existingProfile.email || undefined,
+                    name: existingProfile.full_name,
+                    isGuest: existingProfile.is_guest,
+                    createdAt: existingProfile.created_at,
+                    lastLogin: new Date().toISOString()
+                  };
+
+                  this.notifyAuthCallbacks();
+                  return;
+                } catch (fetchError) {
+                  console.error('🚨 Error fetching existing profile:', fetchError);
+                  this.createFallbackProfile(user);
+                  return;
+                }
+              } else {
+                console.error('🚨 Error creating profile:', createError.message, createError.code, createError.details);
+                // Fallback: create a temporary profile from user data
+                this.createFallbackProfile(user);
+                return;
+              }
             }
 
             console.log('✅ Profile created successfully');
