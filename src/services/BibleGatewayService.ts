@@ -5,7 +5,7 @@ class BibleGatewayService {
     try {
       // Since we can't directly fetch from Bible Gateway due to CORS,
       // we'll return a structured response that directs users to Bible Gateway
-      const passageRef = `${book} ${chapter}`;
+      const passageRef = verses ? `${book} ${chapter}:${verses}` : `${book} ${chapter}`;
       
       // Create a mock response that includes the reference and a link
       return {
