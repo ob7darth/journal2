@@ -393,36 +393,23 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
               <Heart className="text-red-600" size={20} />
               Prayer Requests
             </h3>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowPrayerRequests(!showPrayerRequests)}
-                className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
-              >
-                {showPrayerRequests ? 'Hide' : 'View All'}
-              </button>
-              <button
-                onClick={() => setShowPrayerForm(true)}
-                className="flex items-center gap-1 bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition-colors text-sm"
-              >
-                <Plus size={14} />
-                Add Request
-              </button>
-            </div>
+            <button
+              onClick={() => setShowPrayerRequests(!showPrayerRequests)}
+              className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+            >
+              {showPrayerRequests ? 'Hide' : 'View All'}
+            </button>
           </div>
 
           <div className="space-y-4">
-            {/* Quick Prayer Request */}
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-800 mb-3">
-                <strong>Need prayer?</strong> Share your request with the community. Others will pray for you and offer encouragement.
-              </p>
-              <button
-                onClick={() => setShowPrayerForm(true)}
-                className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
-              >
-                Submit Prayer Request
-              </button>
-            </div>
+            {/* Submit Prayer Request */}
+            <button
+              onClick={() => setShowPrayerForm(true)}
+              className="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center justify-center gap-2"
+            >
+              <Plus size={18} />
+              Submit Prayer Request
+            </button>
 
             {/* Prayer Requests List */}
             {showPrayerRequests && (

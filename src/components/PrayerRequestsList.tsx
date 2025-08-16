@@ -38,10 +38,8 @@ const PrayerRequestsList: React.FC<PrayerRequestsListProps> = ({
     setLoading(true);
     
     try {
-      // Always show sample prayer requests for all users
-      const userRequests = user && !user.isGuest ? 
-        JSON.parse(localStorage.getItem(`prayer-requests-${user.id}`) || '[]') :
-        JSON.parse(localStorage.getItem('guest-prayer-requests') || '[]');
+      // Load community prayer requests (shared by all users)
+      const communityRequests = JSON.parse(localStorage.getItem('community-prayer-requests') || '[]');
       
       const sampleRequests: PrayerRequest[] = [
         {
@@ -129,7 +127,7 @@ const PrayerRequestsList: React.FC<PrayerRequestsListProps> = ({
       ];
       
       // Combine user requests with sample requests
-      const combinedRequests = [...userRequests, ...sampleRequests]
+      const combinedRequests = [...communityRequests, ...sampleRequests]
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, limit);
       
@@ -171,7 +169,7 @@ const PrayerRequestsList: React.FC<PrayerRequestsListProps> = ({
             }));
 
             // Merge database requests with existing requests
-            const allRequests = [...userRequests, ...formattedRequests, ...sampleRequests]
+            const allRequests = [...communityRequests, ...formattedRequests, ...sampleRequests]
               .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
               .slice(0, limit);
             

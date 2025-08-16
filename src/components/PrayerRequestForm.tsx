@@ -37,8 +37,8 @@ const PrayerRequestForm: React.FC<PrayerRequestFormProps> = ({ onClose, onSubmit
 
     try {
       if (user.isGuest) {
-        // For guest users, store in localStorage
-        const guestRequests = JSON.parse(localStorage.getItem('guest-prayer-requests') || '[]');
+        // For guest users, store in community requests
+        const communityRequests = JSON.parse(localStorage.getItem('community-prayer-requests') || '[]');
         const newRequest = {
           id: Date.now().toString(),
           title: title.trim(),
@@ -48,10 +48,10 @@ const PrayerRequestForm: React.FC<PrayerRequestFormProps> = ({ onClose, onSubmit
           createdAt: new Date().toISOString(),
           userName: isAnonymous ? 'Anonymous' : user.name
         };
-        guestRequests.push(newRequest);
-        localStorage.setItem('guest-prayer-requests', JSON.stringify(guestRequests));
+        communityRequests.push(newRequest);
+        localStorage.setItem('community-prayer-requests', JSON.stringify(communityRequests));
       } else {
-        // For authenticated users, save to Supabase
+        // For authenticated users, save to both Supabase and community storage
         if (canUseSupabase() && supabase) {
           const { error: insertError } = await supabase
             .from('prayer_requests')
@@ -65,6 +65,22 @@ const PrayerRequestForm: React.FC<PrayerRequestFormProps> = ({ onClose, onSubmit
 
           if (insertError) {
             throw insertError;
+          }
+          
+          // Also add to community requests for immediate visibility
+          if (isPublic) {
+            const communityRequests = JSON.parse(localStorage.getItem('community-prayer-requests') || '[]');
+            const newRequest = {
+              id: `member_${Date.now()}`,
+              title: title.trim(),
+              description: description.trim(),
+              isAnonymous,
+              isPublic,
+              createdAt: new Date().toISOString(),
+              userName: isAnonymous ? 'Anonymous' : user.name
+            };
+            communityRequests.push(newRequest);
+            localStorage.setItem('community-prayer-requests', JSON.stringify(communityRequests));
           }
         } else {
           throw new Error('Database not available');
