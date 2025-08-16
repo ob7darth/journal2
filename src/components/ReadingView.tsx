@@ -31,7 +31,16 @@ const ReadingView: React.FC<ReadingViewProps> = ({
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Today's Passages</h3>
         <div className="space-y-3">
           {reading.passages.map((passage, index) => (
-            <ScriptureViewer key={index} passage={passage} />
+            <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold text-sm">
+                  {index + 1}
+                </div>
+                <span className="font-semibold text-gray-900">
+                  {passage.displayText || `${passage.book} ${passage.chapter}${passage.endChapter ? `-${passage.endChapter}` : ''}`}
+                </span>
+              </div>
+            </div>
           ))}
         </div>
       </div>
