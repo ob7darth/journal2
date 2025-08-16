@@ -28,32 +28,31 @@ const ReadingView: React.FC<ReadingViewProps> = ({
 
       {/* Scripture Passages */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Today's Passages</h3>
-        <div className="space-y-3">
-          {reading.passages.map((passage, index) => (
-            <div key={index} className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+            <a
+              key={index}
+              href={`https://www.biblegateway.com/passage/?search=${encodeURIComponent(
+                passage.displayText || `${passage.book} ${passage.chapter}${passage.endChapter ? `-${passage.endChapter}` : ''}`
+              )}&version=NASB`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md hover:border-primary-300 transition-all cursor-pointer"
+              title="Read on Bible Gateway"
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold text-sm">
-                  {index + 1}
+                  <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold text-sm">
+                    {index + 1}
+                  </div>
+                  <span className="font-semibold text-gray-900">
+                    {passage.displayText ? 
+                      passage.displayText.replace(/:\d+(-\d+)?/g, '') : 
+                      `${passage.book} ${passage.chapter}${passage.endChapter ? `-${passage.endChapter}` : ''}`
+                    }
+                  </span>
                 </div>
-                <span className="font-semibold text-gray-900">
-                  {passage.displayText || `${passage.book} ${passage.chapter}${passage.endChapter ? `-${passage.endChapter}` : ''}`}
-                </span>
-                </div>
-                <a
-                  href={`https://www.biblegateway.com/passage/?search=${encodeURIComponent(
-                    passage.displayText || `${passage.book} ${passage.chapter}${passage.endChapter ? `-${passage.endChapter}` : ''}`
-                  )}&version=NASB`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary-600 hover:text-primary-700 transition-colors"
-                  title="Read on Bible Gateway"
-                >
-                  <ExternalLink size={16} />
-                </a>
+                <ExternalLink size={16} className="text-primary-600" />
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>
