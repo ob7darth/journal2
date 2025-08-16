@@ -563,6 +563,15 @@ class SupabaseAuthService {
     } else {
       // For authenticated users, sign out from Supabase
       try {
+        // Check if there's an active session before attempting to sign out
+        const { data: sessionData, error: sessionError } = await supabase!.auth.getSession();
+        
+        if (sessionError || !sessionData.session) {
+          console.log('🔄 No active session found, performing local sign out');
+          await this.forceClearSessionAndSignOut();
+          return;
+        }
+        
         const { error } = await supabase!.auth.signOut();
         if (error) {
           // Check if the error is due to session not existing on server
