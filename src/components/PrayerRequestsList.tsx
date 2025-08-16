@@ -41,93 +41,8 @@ const PrayerRequestsList: React.FC<PrayerRequestsListProps> = ({
       // Load community prayer requests (shared by all users)
       const communityRequests = JSON.parse(localStorage.getItem('community-prayer-requests') || '[]');
       
-      const sampleRequests: PrayerRequest[] = [
-        {
-          id: '1',
-          title: 'Healing for my grandmother',
-          description: 'Please pray for my grandmother who is in the hospital. She needs strength and healing.',
-          isAnonymous: false,
-          isAnswered: false,
-          createdAt: new Date(Date.now() - 86400000).toISOString(),
-          userName: 'Sarah M.',
-          responseCount: 12
-        },
-        {
-          id: '2',
-          title: 'Job interview tomorrow',
-          description: 'I have an important job interview tomorrow. Praying for peace and wisdom.',
-          isAnonymous: true,
-          isAnswered: false,
-          createdAt: new Date(Date.now() - 43200000).toISOString(),
-          userName: 'Anonymous',
-          responseCount: 8
-        },
-        {
-          id: '3',
-          title: 'Marriage restoration',
-          description: 'Please pray for healing and restoration in my marriage. We need God\'s guidance.',
-          isAnonymous: false,
-          isAnswered: true,
-          answeredAt: new Date(Date.now() - 172800000).toISOString(),
-          answerDescription: 'Thank you all for your prayers! We had a breakthrough conversation and are going to counseling together.',
-          createdAt: new Date(Date.now() - 604800000).toISOString(),
-          userName: 'Mike R.',
-          responseCount: 25
-        },
-        {
-          id: '4',
-          title: 'Strength for caregiving',
-          description: 'Caring for my elderly father is becoming overwhelming. Please pray for patience and strength.',
-          isAnonymous: false,
-          isAnswered: false,
-          createdAt: new Date(Date.now() - 259200000).toISOString(),
-          userName: 'Jennifer K.',
-          responseCount: 15
-        },
-        {
-          id: '5',
-          title: 'Financial provision',
-          description: 'Struggling to make ends meet this month. Trusting God for His provision.',
-          isAnonymous: true,
-          isAnswered: false,
-          createdAt: new Date(Date.now() - 345600000).toISOString(),
-          userName: 'Anonymous',
-          responseCount: 22
-        },
-        {
-          id: '6',
-          title: 'College decision guidance',
-          description: 'My daughter is choosing between colleges. Praying for wisdom and God\'s direction.',
-          isAnonymous: false,
-          isAnswered: false,
-          createdAt: new Date(Date.now() - 432000000).toISOString(),
-          userName: 'Robert T.',
-          responseCount: 9
-        },
-        {
-          id: '7',
-          title: 'Health concerns',
-          description: 'Waiting for test results and feeling anxious. Please pray for peace and good news.',
-          isAnonymous: true,
-          isAnswered: false,
-          createdAt: new Date(Date.now() - 518400000).toISOString(),
-          userName: 'Anonymous',
-          responseCount: 18
-        },
-        {
-          id: '8',
-          title: 'New business venture',
-          description: 'Starting a new business and need God\'s guidance and blessing on this endeavor.',
-          isAnonymous: false,
-          isAnswered: false,
-          createdAt: new Date(Date.now() - 604800000).toISOString(),
-          userName: 'David L.',
-          responseCount: 11
-        }
-      ];
-      
-      // Combine user requests with sample requests
-      const combinedRequests = [...communityRequests, ...sampleRequests]
+      // Sort community requests by creation date
+      const combinedRequests = [...communityRequests]
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, limit);
       
@@ -169,7 +84,7 @@ const PrayerRequestsList: React.FC<PrayerRequestsListProps> = ({
             }));
 
             // Merge database requests with existing requests
-            const allRequests = [...communityRequests, ...formattedRequests, ...sampleRequests]
+            const allRequests = [...communityRequests, ...formattedRequests]
               .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
               .slice(0, limit);
             
@@ -181,30 +96,8 @@ const PrayerRequestsList: React.FC<PrayerRequestsListProps> = ({
       }
     } catch (error) {
       console.error('Error loading prayer requests:', error);
-      // Fallback to sample data on any error
-      const sampleRequests: PrayerRequest[] = [
-        {
-          id: '1',
-          title: 'Healing for my grandmother',
-          description: 'Please pray for my grandmother who is in the hospital. She needs strength and healing.',
-          isAnonymous: false,
-          isAnswered: false,
-          createdAt: new Date(Date.now() - 86400000).toISOString(),
-          userName: 'Sarah M.',
-          responseCount: 12
-        },
-        {
-          id: '2',
-          title: 'Job interview tomorrow',
-          description: 'I have an important job interview tomorrow. Praying for peace and wisdom.',
-          isAnonymous: true,
-          isAnswered: false,
-          createdAt: new Date(Date.now() - 43200000).toISOString(),
-          userName: 'Anonymous',
-          responseCount: 8
-        }
-      ];
-      setRequests(sampleRequests.slice(0, limit));
+      // On error, just show empty list
+      setRequests([]);
     } finally {
       setLoading(false);
     }
