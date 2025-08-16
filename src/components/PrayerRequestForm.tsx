@@ -51,39 +51,35 @@ const PrayerRequestForm: React.FC<PrayerRequestFormProps> = ({ onClose, onSubmit
         communityRequests.push(newRequest);
         localStorage.setItem('community-prayer-requests', JSON.stringify(communityRequests));
       } else {
-        // For authenticated users, save to both Supabase and community storage
+        // For authenticated users, always store in community requests for sharing
+        const communityRequests = JSON.parse(localStorage.getItem('community-prayer-requests') || '[]');
+        const newRequest = {
+          id: `member_${Date.now()}`,
+          title: title.trim(),
+          description: description.trim(),
+          isAnonymous,
+          isPublic,
+          createdAt: new Date().toISOString(),
+          userName: isAnonymous ? 'Anonymous' : user.name
+        };
+        communityRequests.push(newRequest);
+        localStorage.setItem('community-prayer-requests', JSON.stringify(communityRequests));
+        
+        // Also try to save to Supabase if available (but don't fail if it doesn't work)
         if (canUseSupabase() && supabase) {
-          const { error: insertError } = await supabase
-            .from('prayer_requests')
-            .insert({
-              user_id: user.id,
-              title: title.trim(),
-              description: description.trim(),
-              is_anonymous: isAnonymous,
-              is_public: isPublic
-            });
-
-          if (insertError) {
-            throw insertError;
+          try {
+            await supabase
+              .from('prayer_requests')
+              .insert({
+                user_id: user.id,
+                title: title.trim(),
+                description: description.trim(),
+                is_anonymous: isAnonymous,
+                is_public: isPublic
+              });
+          } catch (supabaseError) {
+            console.warn('Failed to save to Supabase, but saved to community storage:', supabaseError);
           }
-          
-          // Also add to community requests for immediate visibility
-          if (isPublic) {
-            const communityRequests = JSON.parse(localStorage.getItem('community-prayer-requests') || '[]');
-            const newRequest = {
-              id: `member_${Date.now()}`,
-              title: title.trim(),
-              description: description.trim(),
-              isAnonymous,
-              isPublic,
-              createdAt: new Date().toISOString(),
-              userName: isAnonymous ? 'Anonymous' : user.name
-            };
-            communityRequests.push(newRequest);
-            localStorage.setItem('community-prayer-requests', JSON.stringify(communityRequests));
-          }
-        } else {
-          throw new Error('Database not available');
         }
       }
 

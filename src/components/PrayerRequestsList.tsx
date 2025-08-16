@@ -38,65 +38,19 @@ const PrayerRequestsList: React.FC<PrayerRequestsListProps> = ({
     setLoading(true);
     
     try {
-      // Load community prayer requests (shared by all users)
+      // Load community prayer requests from shared localStorage
       const communityRequests = JSON.parse(localStorage.getItem('community-prayer-requests') || '[]');
       
-      // Sort community requests by creation date
-      const combinedRequests = [...communityRequests]
+      // Filter for public requests only and sort by creation date
+      const publicRequests = communityRequests
+        .filter((req: any) => req.isPublic !== false) // Show public requests (default to true if not specified)
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, limit);
       
-      setRequests(combinedRequests);
-      
-      // Try to load from Supabase for authenticated users (but don't block on it)
-      if (user && !user.isGuest && supabase) {
-        try {
-          const { data, error } = await supabase
-            .from('prayer_requests')
-            .select(`
-              id,
-              title,
-              description,
-              is_anonymous,
-              is_answered,
-              answered_at,
-              answer_description,
-              created_at,
-              profiles!inner(full_name)
-            `)
-            .eq('is_public', true)
-            .gte('expires_at', new Date().toISOString())
-            .order('created_at', { ascending: false })
-            .limit(Math.max(limit - communityRequests.length, 1));
-
-          if (!error && data && data.length > 0) {
-            const formattedRequests: PrayerRequest[] = data.map((req: any) => ({
-              id: `db_${req.id}`,
-              title: req.title,
-              description: req.description,
-              isAnonymous: req.is_anonymous,
-              isAnswered: req.is_answered,
-              answeredAt: req.answered_at,
-              answerDescription: req.answer_description,
-              createdAt: req.created_at,
-              userName: req.is_anonymous ? 'Anonymous' : req.profiles.full_name,
-              responseCount: 0
-            }));
-
-            // Merge database requests with existing requests
-            const allRequests = [...communityRequests, ...formattedRequests]
-              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-              .slice(0, limit);
-            
-            setRequests(allRequests);
-          }
-        } catch (dbError) {
-          console.log('Database requests unavailable, using sample data');
-        }
-      }
+      setRequests(publicRequests);
+      console.log('Loaded', publicRequests.length, 'community prayer requests');
     } catch (error) {
       console.error('Error loading prayer requests:', error);
-      // On error, just show empty list
       setRequests([]);
     } finally {
       setLoading(false);
