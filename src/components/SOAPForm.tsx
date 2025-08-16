@@ -232,7 +232,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
           <label className="block text-sm font-semibold text-gray-800 mb-2">
             📝 Entry Title
             <span className="font-normal text-gray-600 ml-2">
-              Give your study a meaningful title (optional)
+              Give your study a meaningful title
             </span>
           </label>
           <input
@@ -251,7 +251,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
             <label className="block text-sm font-semibold text-gray-800">
               📖 Scripture
               <span className="font-normal text-gray-600 ml-2">
-                Choose a verse that stands out to you (optional)
+                Choose a verse that stands out to you
               </span>
             </label>
             <button
@@ -285,7 +285,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
           <label className="block text-sm font-semibold text-gray-800 mb-2">
             👁️ Observation
             <span className="font-normal text-gray-600 ml-2">
-              What is this passage saying? (optional)
+              What is this passage saying?
             </span>
           </label>
           <textarea
@@ -304,7 +304,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
           <label className="block text-sm font-semibold text-gray-800 mb-2">
             🎯 Application
             <span className="font-normal text-gray-600 ml-2">
-              How does this apply to your life? (optional)
+              How does this apply to your life?
             </span>
           </label>
           <textarea
@@ -323,7 +323,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
           <label className="block text-sm font-semibold text-gray-800 mb-2">
             🙏 Prayer
             <span className="font-normal text-gray-600 ml-2">
-              Talk to God about what you learned (optional)
+              Talk to God about what you learned
             </span>
           </label>
           <textarea
