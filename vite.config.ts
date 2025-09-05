@@ -9,9 +9,7 @@ export default defineConfig({
     host: true,
     strictPort: false,
     hmr: {
-      overlay: false,
-      host: process.env.HOST,
-      clientPort: 443
+      overlay: false
     }
   },
   optimizeDeps: {
