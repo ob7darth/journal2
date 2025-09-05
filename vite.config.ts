@@ -16,7 +16,8 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    exclude: ['@supabase/supabase-js', 'sql.js']
+    exclude: ['@supabase/supabase-js', 'sql.js'],
+    include: ['@babel/runtime']
   },
   build: {
     outDir: 'dist',
