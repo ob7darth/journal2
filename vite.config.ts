@@ -13,11 +13,8 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    exclude: ['@supabase/supabase-js']
+    exclude: ['@supabase/supabase-js', 'sql.js']
   },
-  build: {
-    sourcemap: true
-  }
   build: {
     outDir: 'dist',
     sourcemap: false,
@@ -31,9 +28,6 @@ export default defineConfig({
       }
     },
     chunkSizeWarningLimit: 1000
-  },
-  optimizeDeps: {
-    exclude: ['sql.js']
   },
   preview: {
     port: 4173,
