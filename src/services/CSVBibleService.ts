@@ -141,38 +141,50 @@ Ephesians,2,9,"not of works, that no man should glory."`;
 
   private parseCSVFields(line: string): string[] {
     const fields: string[] = [];
-    let current = '';
-    let inQuotes = false;
-    let i = 0;
-
-    while (i < line.length) {
-      const char = line[i];
+    
+    try {
+      // Simple but robust CSV parsing
+      let current = '';
+      let inQuotes = false;
       
-      if (char === '"') {
-        if (inQuotes && line[i + 1] === '"') {
-          // Escaped quote
-          current += '"';
-          i += 2;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        const nextChar = i + 1 < line.length ? line[i + 1] : null;
+        
+        if (char === '"') {
+          if (inQuotes && nextChar === '"') {
+            // Escaped quote - add literal quote and skip next
+            current += '"';
+            i++; // Skip the next quote
+          } else {
+            // Toggle quote state
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          // Field separator outside quotes
+          fields.push(current.trim());
+          current = '';
         } else {
-          // Toggle quote state
-          inQuotes = !inQuotes;
-          i++;
+          // Regular character
+          current += char;
         }
-      } else if (char === ',' && !inQuotes) {
-        // Field separator
-        fields.push(current);
-        current = '';
-        i++;
-      } else {
-        current += char;
-        i++;
       }
+      
+      // Add the last field
+      fields.push(current.trim());
+      
+      // Validate we have at least the expected number of fields
+      if (fields.length < 4) {
+        console.warn('CSV line has fewer than 4 fields:', line.substring(0, 100));
+        return [];
+      }
+      
+      return fields;
+      
+    } catch (error) {
+      console.warn('Error parsing CSV line:', error);
+      return [];
     }
-    
-    // Add the last field
-    fields.push(current);
-    
-    return fields;
   }
 
   async getPassage(book: string, chapter: number, verses: string): Promise<BiblePassage | null> {
