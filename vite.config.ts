@@ -9,7 +9,10 @@ export default defineConfig({
     host: true,
     strictPort: false,
     hmr: {
-      overlay: false
+      overlay: false,
+      client: {
+        host: 'window.location.hostname'
+      }
     }
   },
   optimizeDeps: {
