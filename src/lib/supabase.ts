@@ -48,8 +48,11 @@ export const testSupabaseConnectivity = async (): Promise<boolean> => {
 };
 
 // Create Supabase client only if configured
-export const supabase = isSupabaseConfigured 
-  ? createClient(supabaseUrl, supabaseAnonKey, {
+let supabase: any = null;
+
+if (isSupabaseConfigured) {
+  try {
+    supabase = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
@@ -69,8 +72,14 @@ export const supabase = isSupabaseConfigured
           eventsPerSecond: 2
         }
       }
-    })
-  : null;
+    });
+  } catch (error) {
+    console.warn('🔄 Failed to initialize Supabase client:', error);
+    supabase = null;
+  }
+}
+
+export { supabase };
 
 // Helper function to check if Supabase operations are available
 export const canUseSupabase = (): boolean => {
